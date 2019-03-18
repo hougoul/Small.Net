@@ -29,5 +29,68 @@ namespace Small.Net.Reflection
             }
             return properties;
         }
+
+        /// <summary>
+        /// Converts the value.
+        /// </summary>
+        /// <param name="conversionType">Type of the conversion.</param>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        public static object ConvertValue(this Type conversionType, object value)
+        {
+            if (conversionType.IsNullableType())
+            {
+                if (value == null || Convert.IsDBNull(value)) return null;
+                conversionType = conversionType.GetEnumUnderlyingType();
+            }
+            var valueType = value.GetType();
+            if (valueType == conversionType) return value;
+            Func<object> conversion = () => Convert.ChangeType(value, conversionType);
+            if (conversionType == typeof(string)) conversion = () => value.ToString();
+            //else if(conversionType.IsNumericType() && valueType.IsNumericType())
+            else if (conversionType.IsEnum) conversion = () => (valueType == typeof(string) ? Enum.Parse(conversionType, (string)value, true) : (Enum.IsDefined(conversionType, value) ? Enum.ToObject(conversionType, value) : throw new InvalidCastException($"Cannot cast {value} to {conversionType}")));
+            return conversion();
+        }
+
+        private static Type NullableType = typeof(Nullable<>);
+        /// <summary>
+        /// Determines whether [is nullable type] [the specified type].
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if [is nullable type] [the specified type]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsNullableType(this Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == NullableType;
+        }
+        /// <summary>
+        /// Determines whether [is numeric type] [the specified type].
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>
+        ///   <c>true</c> if [is numeric type] [the specified type]; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsNumericType(this Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
     }
 }

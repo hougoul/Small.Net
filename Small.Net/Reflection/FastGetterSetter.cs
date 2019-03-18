@@ -10,6 +10,7 @@ namespace Small.Net.Reflection
     {
         private Func<object, object> _getMethod;
         private Action<T, object> _setMethod;
+        private Type _declaringType;
 
         public string Name { get; private set; }
         public Type PropertyType { get; private set;}
@@ -37,6 +38,7 @@ namespace Small.Net.Reflection
             var type = typeof(T);
             Name = pi.Name;
             PropertyType = pi.PropertyType;
+            _declaringType = pi.DeclaringType;
             Attributes = pi.GetCustomAttributes(true);
             /* Create linq expression to access getter setter */
             var getter = pi.GetGetMethod();
