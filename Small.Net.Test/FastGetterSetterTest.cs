@@ -17,6 +17,9 @@ namespace Small.Net.Test
 
             properties["prOp2"].SetValue(obj, 12L);
             Assert.AreEqual(12L, properties["PROP2"].GetValue(obj));
+
+            properties["prOp2"].SetValue(obj, 100.0m);
+            Assert.AreEqual(100L, properties["PROP2"].GetValue(obj));
         }
     }
 

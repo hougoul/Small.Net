@@ -10,7 +10,6 @@ namespace Small.Net.Reflection
     {
         private Func<object, object> _getMethod;
         private Action<T, object> _setMethod;
-        private Type _declaringType;
 
         public string Name { get; private set; }
         public Type PropertyType { get; private set;}
@@ -31,6 +30,7 @@ namespace Small.Net.Reflection
         public void SetValue(object obj, object value) {
             if (!(obj is T objGoodType)) throw new InvalidOperationException("Cannot use the setter on this object");
              Debug.Assert(HasSetter);
+            if (PropertyType != value.GetType()) value = PropertyType.ConvertValue(value);
              _setMethod(objGoodType, value);
         }
 
@@ -38,7 +38,6 @@ namespace Small.Net.Reflection
             var type = typeof(T);
             Name = pi.Name;
             PropertyType = pi.PropertyType;
-            _declaringType = pi.DeclaringType;
             Attributes = pi.GetCustomAttributes(true);
             /* Create linq expression to access getter setter */
             var getter = pi.GetGetMethod();
