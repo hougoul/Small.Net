@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Reflection;
-using System.Linq;
 
 namespace Small.Net.Reflection
 {
@@ -51,7 +50,7 @@ namespace Small.Net.Reflection
             Func<object> conversion = () => Convert.ChangeType(value, conversionType);
             if (conversionType == typeof(string)) conversion = () => Convert.ToString(value);
             else if (conversionType.IsNumericType() && valueType.IsNumericType()) conversion = () => ConvertNumber(conversionType, (dynamic)value);
-            else if (conversionType == typeof(bool)) conversion = () => (valueType == typeof(string) ? (string)value == StringToBoolTrueValue : (valueType == typeof(char)? (char)value == CharToBoolTrueValue : Convert.ToBoolean(value)));
+            else if (conversionType == typeof(bool)) conversion = () => (valueType == typeof(string) ? (string)value == StringToBoolTrueValue || Convert.ToBoolean(value) : (valueType == typeof(char)? (char)value == CharToBoolTrueValue : Convert.ToBoolean(value)));
             else if (conversionType.IsEnum) conversion = () => Enum.Parse(conversionType, Convert.ToString(value), true);
             try
             {
