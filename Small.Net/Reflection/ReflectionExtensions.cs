@@ -7,26 +7,17 @@ namespace Small.Net.Reflection
 {
     public static class ReflectionExtensions
     {
-        private static readonly ConcurrentDictionary<Type, Dictionary<string, IGetterSetter>> GetterSetterCache = new ConcurrentDictionary<Type, Dictionary<string, IGetterSetter>>();
+        private static readonly ConcurrentDictionary<Type, IReflectionObject> GetterSetterCache = new ConcurrentDictionary<Type, IReflectionObject>();
 
-        public static IReadOnlyDictionary<string, IGetterSetter> GetPropertiesAccessor(this Type objType)
+        public static IReflectionObject GetObjectReflectionHelper(this Type objType)
         {
-            if (!GetterSetterCache.TryGetValue(objType, out var properties))
+            if (!GetterSetterCache.TryGetValue(objType, out var reflectionObject))
             {
-                properties = new Dictionary<string, IGetterSetter>(StringComparer.OrdinalIgnoreCase);
-                var propertiesInfo = objType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
-                if (propertiesInfo != null)
-                {
-                    var getterSetterType = typeof(FastGetterSetter<>).MakeGenericType(objType);
-                    foreach(var propInfo in propertiesInfo)
-                    {
-                        var getterSetter = (IGetterSetter)Activator.CreateInstance(getterSetterType, propInfo);
-                        properties.Add(propInfo.Name, getterSetter);
-                    }
-                }
-                GetterSetterCache.TryAdd(objType, properties);
+                reflectionObject = (IReflectionObject)Activator.CreateInstance(typeof(ReflectionObject<>).MakeGenericType(objType));
+                
+                GetterSetterCache.TryAdd(objType, reflectionObject);
             }
-            return properties;
+            return reflectionObject;
         }
 
         public static string StringToBoolTrueValue = "Y";

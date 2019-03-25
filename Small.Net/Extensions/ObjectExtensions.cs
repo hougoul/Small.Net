@@ -18,10 +18,11 @@ namespace Small.Net.Extensions
             var t1Type = typeof(T1);
             var t2Type = typeof(T2);
             if (t1Type == t2Type && obj is ICloneable cloneable) return (T2)cloneable.Clone();
-            var copy = new T2();
-            var _getters = t1Type.GetPropertiesAccessor().Where(pair => pair.Value.HasGetter).ToDictionary(pair => pair.Key, pair => pair.Value ,StringComparer.OrdinalIgnoreCase);
-            var _setters = t2Type.GetPropertiesAccessor().Where(pair => pair.Value.HasSetter).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
-            foreach(var getter in _getters)
+            var helper = t2Type.GetObjectReflectionHelper();
+            var _getters = t1Type.GetObjectReflectionHelper().GetProperties(PropertyType.Getter);
+            var _setters = helper.GetProperties(PropertyType.Setter);
+            var copy =(T2)helper.CreateInstance();
+            foreach (var getter in _getters)
             {
                 if (_setters.ContainsKey(getter.Key))
                     _setters[getter.Key].SetValue(copy, getter.Value.GetValue(obj));
