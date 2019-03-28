@@ -44,6 +44,16 @@ namespace Small.Net.Reflection
         void SetValue(string propertyName, object obj, object value);
 
         /// <summary>
+        /// Determines whether the specified property name has property.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        /// <param name="propertyType">Type of the property.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified property name has property; otherwise, <c>false</c>.
+        /// </returns>
+        bool HasProperty(string propertyName, PropertyType propertyType);
+
+        /// <summary>
         /// Gets the properties.
         /// </summary>
         /// <param name="propertyType">Type of the property.</param>

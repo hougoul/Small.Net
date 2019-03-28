@@ -64,6 +64,21 @@ namespace Small.Net.Reflection
             throw new InvalidOperationException("Cannot arrive here");
         }
 
+        public bool HasProperty(string propertyName, PropertyType propertyType)
+        {
+            switch (propertyType)
+            {
+                case PropertyType.All:
+                    return _properties.ContainsKey(propertyName);
+                case PropertyType.Getter:
+                    return _properties.ContainsKey(propertyName) && _properties[propertyName].HasGetter;
+                case PropertyType.Setter:
+                    return _properties.ContainsKey(propertyName) && _properties[propertyName].HasSetter;
+            }
+
+            return false;
+        }
+
         private void InititaliseGetterSetter()
         {
             var objType = typeof(T);

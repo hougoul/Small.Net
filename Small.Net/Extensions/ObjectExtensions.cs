@@ -1,6 +1,5 @@
 ﻿using Small.Net.Reflection;
 using System;
-using System.Linq;
 
 namespace Small.Net.Extensions
 {
