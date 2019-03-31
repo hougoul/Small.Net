@@ -83,14 +83,12 @@ namespace Small.Net.Reflection
         {
             var objType = typeof(T);
             var propertiesInfo = objType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
-            if (propertiesInfo != null)
+            if (propertiesInfo.Length == 0) return;
+            var getterSetterType = typeof(FastGetterSetter<>).MakeGenericType(objType);
+            foreach (var propInfo in propertiesInfo)
             {
-                var getterSetterType = typeof(FastGetterSetter<>).MakeGenericType(objType);
-                foreach (var propInfo in propertiesInfo)
-                {
-                    var getterSetter = (IGetterSetter)Activator.CreateInstance(getterSetterType, propInfo);
-                    _properties.Add(propInfo.Name, getterSetter);
-                }
+                var getterSetter = (IGetterSetter)Activator.CreateInstance(getterSetterType, propInfo);
+                _properties.Add(propInfo.Name, getterSetter);
             }
         }
 

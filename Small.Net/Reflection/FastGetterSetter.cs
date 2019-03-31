@@ -52,7 +52,8 @@ namespace Small.Net.Reflection
                 HasGetter = true;
             }
             var setter = pi.GetSetMethod(true);
-            if (setter?.IsPublic != true) return;
+            /* We support simple setter, we don't support setter with index parameter */
+            if (setter == null || setter?.IsPublic != true || setter?.GetParameters().Length > 1) return;
             var instance = Expression.Parameter(pi.DeclaringType ?? throw new InvalidOperationException(), "target");
             var argument = Expression.Parameter(typeof(object), "value");
             var setterCall = Expression.Call(
