@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace Small.Net.Reflection
 {
@@ -9,12 +10,10 @@ namespace Small.Net.Reflection
 
         public static IReflectionObject GetObjectReflectionHelper(this Type objType)
         {
-            if (!GetterSetterCache.TryGetValue(objType, out var reflectionObject))
-            {
-                reflectionObject = (IReflectionObject)Activator.CreateInstance(typeof(ReflectionObject<>).MakeGenericType(objType));
+            if (GetterSetterCache.TryGetValue(objType, out var reflectionObject)) return reflectionObject;
+            reflectionObject = (IReflectionObject)Activator.CreateInstance(typeof(ReflectionObject<>).MakeGenericType(objType));
                 
-                GetterSetterCache.TryAdd(objType, reflectionObject);
-            }
+            GetterSetterCache.TryAdd(objType, reflectionObject);
             return reflectionObject;
         }
 
@@ -34,6 +33,7 @@ namespace Small.Net.Reflection
                 if (value == null || Convert.IsDBNull(value)) return null;
                 conversionType = Nullable.GetUnderlyingType(conversionType);
             }
+            Debug.Assert(conversionType != null);
             var valueType = value.GetType();
             if (valueType == conversionType) return value;
             Func<object> conversion = () => Convert.ChangeType(value, conversionType);
