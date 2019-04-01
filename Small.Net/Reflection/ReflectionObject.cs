@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -15,7 +16,7 @@ namespace Small.Net.Reflection
 
         public ReflectionObject()
         {
-            InititaliseGetterSetter();
+            InitialiseGetterSetter();
             _activator = InitialiseActivator();
         }
 
@@ -79,7 +80,7 @@ namespace Small.Net.Reflection
             return false;
         }
 
-        private void InititaliseGetterSetter()
+        private void InitialiseGetterSetter()
         {
             var objType = typeof(T);
             var propertiesInfo = objType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
@@ -96,6 +97,7 @@ namespace Small.Net.Reflection
         {
             var objType = typeof(T);
             var constructorInfo = objType.GetConstructors(BindingFlags.Instance | BindingFlags.Public).FirstOrDefault();
+            Debug.Assert(constructorInfo != null, nameof(constructorInfo) + " != null");
             var ctorParams = constructorInfo.GetParameters();
             var paramExp = Expression.Parameter(typeof(object[]), "args");
 

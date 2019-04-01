@@ -21,7 +21,7 @@ namespace Small.Net.Extensions
             return await dr.ConvertTo<T>(CancellationToken.None).ConfigureAwait(false);
         }
 
-        public static async Task<IEnumerable<T>> ConvertTo<T>(this DbDataReader dr, CancellationToken token) where T : class, new()
+        public static async Task<IList<T>> ConvertTo<T>(this DbDataReader dr, CancellationToken token) where T : class, new()
         {
             var list = new List<T>();
             var helper = typeof(T).GetObjectReflectionHelper();
@@ -51,7 +51,7 @@ namespace Small.Net.Extensions
             return await dr.ConvertTo(CancellationToken.None, toTypes).ConfigureAwait(false);
         }
 
-        public static async Task<IEnumerable<IEnumerable<object>>> ConvertTo(this DbDataReader dr, CancellationToken token, params Type[] toTypes)
+        public static async Task<IList<List<object>>> ConvertTo(this DbDataReader dr, CancellationToken token, params Type[] toTypes)
         {
             if (toTypes == null) throw new ArgumentNullException(nameof(toTypes));
 
