@@ -13,13 +13,31 @@ namespace Small.Net.Reflection
         private delegate object FastActivator(params object[] args);
         private readonly FastActivator _activator;
 
+        /// <summary>
+        /// Attribute on Type
+        /// </summary>
+        public Attribute[] TypeAttributes { get; }
 
+        /// <summary>
+        /// CSharp name of type T
+        /// </summary>
+        public string ObjectName { get; }
+        
         public ReflectionObject()
         {
+            var type = typeof(T);
+            TypeAttributes = type.GetCustomAttributes().ToArray();
+            ObjectName = type.Name;
+            
             InitialiseGetterSetter();
             _activator = InitialiseActivator();
         }
 
+        /// <summary>
+        /// Get a specific Getter Setter helper
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public IGetterSetter this[string propertyName]
         {
             get
@@ -29,11 +47,23 @@ namespace Small.Net.Reflection
             }
         }
 
+        /// <summary>
+        /// Create Instance of type T
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public object CreateInstance(params object[] args)
         {
             return _activator(args);
         }
-        
+        /// <summary>
+        /// Get a property value
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public object GetValue(string propertyName, object obj)
         {
             if (!_properties.ContainsKey(propertyName)) throw new ArgumentOutOfRangeException(nameof(propertyName));
@@ -42,6 +72,14 @@ namespace Small.Net.Reflection
             return getter.GetValue(obj);
         }
 
+        /// <summary>
+        /// Set a property
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
         public void SetValue(string propertyName, object obj, object value)
         {
             if (!_properties.ContainsKey(propertyName)) throw new ArgumentOutOfRangeException(nameof(propertyName));
@@ -51,6 +89,12 @@ namespace Small.Net.Reflection
         }
 
 
+        /// <summary>
+        /// Get a Dictionary of T properties 
+        /// </summary>
+        /// <param name="propertyType"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public IReadOnlyDictionary<string, IGetterSetter> GetProperties(PropertyType propertyType)
         {
             switch (propertyType)
@@ -65,6 +109,12 @@ namespace Small.Net.Reflection
             throw new InvalidOperationException("Cannot arrive here");
         }
 
+        /// <summary>
+        /// Test if we have a property
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <param name="propertyType"></param>
+        /// <returns></returns>
         public bool HasProperty(string propertyName, PropertyType propertyType)
         {
             switch (propertyType)

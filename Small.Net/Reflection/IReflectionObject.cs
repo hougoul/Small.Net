@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Small.Net.Reflection
 {
@@ -11,6 +12,16 @@ namespace Small.Net.Reflection
 
     public interface IReflectionObject
     {
+        /// <summary>
+        /// Attribute on Type
+        /// </summary>
+        Attribute[] TypeAttributes { get; }
+
+        /// <summary>
+        /// CSharp name of type T
+        /// </summary>
+        string ObjectName { get; }
+        
         /// <summary>
         /// Gets the <see cref="IGetterSetter"/> with the specified property name.
         /// </summary>
