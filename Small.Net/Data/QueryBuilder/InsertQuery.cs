@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Small.Net.Data.Attributes;
 using Small.Net.Reflection;
+// ReSharper disable StaticMemberInGenericType
 
 namespace Small.Net.Data.QueryBuilder
 {
@@ -30,7 +31,7 @@ namespace Small.Net.Data.QueryBuilder
         public override TEntity Execute()
         {
             if (string.IsNullOrWhiteSpace(_query)) Build();
-
+            // ToDo 
             return _entity;
         }
 
@@ -46,6 +47,8 @@ namespace Small.Net.Data.QueryBuilder
             
             var queryBuilder = new StringBuilder($"INSERT INTO {tableName} (");
             // TODO
+
+            _query = queryBuilder.ToString();
         }
     }
 }
