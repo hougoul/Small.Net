@@ -15,7 +15,7 @@ namespace Small.Net.Data.QueryBuilder
         /// <summary>
         /// Parameter Value
         /// </summary>
-        internal object ParameterValue;
+        internal string PropertyName;
 
         /// <summary>
         /// Parameter DbType

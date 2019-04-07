@@ -8,13 +8,14 @@ namespace Small.Net.Data.Attributes
         Select,
         Insert,
         Update,
-        
     }
+
+    /// <inheritdoc />
     /// <summary>
     /// Flag Property to be ignore for query
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class QueryIgnoreAttribute : Attribute
+    public sealed class QueryIgnoreAttribute : DatabaseAttribute
     {
         /// <summary>
         /// Query type
@@ -25,7 +26,8 @@ namespace Small.Net.Data.Attributes
         /// default constructor
         /// </summary>
         /// <param name="forQuery"></param>
-        public QueryIgnoreAttribute(IgnoreForQuery forQuery)
+        /// <param name="dbConnectionType"></param>
+        public QueryIgnoreAttribute(IgnoreForQuery forQuery, Type dbConnectionType = null) : base(dbConnectionType)
         {
             ForQuery = forQuery;
         }

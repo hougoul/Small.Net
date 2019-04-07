@@ -8,7 +8,7 @@ namespace Small.Net.Data.Attributes
     /// useful for Database with column convention incompatible with C# property convention
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public sealed class ColumnNameAttribute : Attribute
+    public sealed class ColumnAttribute : DatabaseAttribute
     {
         /// <summary>
         /// Column Name
@@ -16,9 +16,9 @@ namespace Small.Net.Data.Attributes
         public string Name { get; }
 
         /// <summary>
-        /// DbConnection Type
+        /// DbType could be any special dbType
         /// </summary>
-        public Type ForType { get; }
+        public object DbType { get; set; }
 
         /// <summary>
         /// Default constructor
@@ -26,11 +26,11 @@ namespace Small.Net.Data.Attributes
         /// <param name="name">Column Name</param>
         /// <param name="dbConnectionType">Optional DbConnection Type</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public ColumnNameAttribute(string name, Type dbConnectionType = null)
+        public ColumnAttribute(string name, object dbType = null, Type dbConnectionType = null) : base(dbConnectionType)
         {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
             Name = name;
-            ForType = dbConnectionType;
+            DbType = dbType;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Small.Net.Data.Attributes
     /// Mark Property used as key
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public sealed class PrimaryKeyAttribute : Attribute
+    public sealed class PrimaryKeyAttribute : DatabaseAttribute
     {
         /// <summary>
         /// Function to Call when we insert a row
@@ -17,21 +17,15 @@ namespace Small.Net.Data.Attributes
         public string DbFunctionForInsert { get; }
 
         /// <summary>
-        /// DbConnection type
-        /// </summary>
-        public Type ForType { get;  }
-        
-        /// <summary>
         /// constructor
         /// </summary>
         /// <param name="dbConnectionType">DbConnection Type</param>
         /// <param name="dbFunctionForInsert">Optional function to call to compute key</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public PrimaryKeyAttribute(string dbFunctionForInsert = null, Type dbConnectionType = null)
+        public PrimaryKeyAttribute(string dbFunctionForInsert = null, Type dbConnectionType = null) : base(
+            dbConnectionType)
         {
             DbFunctionForInsert = dbFunctionForInsert;
-            ForType = dbConnectionType;
         }
-
     }
 }
