@@ -56,11 +56,12 @@ namespace Small.Net.Data.QueryBuilder
             foreach (var property in properties.Values)
             {
                 if (!property.HasGetter) continue;
+                /* Todo for sqlite case doesn't support returning values */
                 if (property.Attributes.OfType<QueryIgnoreAttribute>()
                     .Any(i => i.ForQuery.HasFlag(IgnoreForQuery.Insert))) continue;
 
                 /* Add Column */
-                var columnAttribute = property.Attributes.OfType<ColumnAttribute>()
+                var columnAttribute = property.Attributes.OfType<ColumnNameAttribute>()
                     .Where(c => c.ForType == null || c.ForType == dbConnectionType)
                     .OrderBy(c => c.ForType == null ? 1 : 0).FirstOrDefault();
                 var columnName = (columnAttribute != null ? columnAttribute.Name : property.Name);

@@ -1,15 +1,24 @@
 ﻿using Small.Net.Reflection;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Small.Net.Data;
 
 namespace Small.Net.Extensions
 {
     public static class DataExtensions
     {
+        static DataExtensions()
+        {
+            Providers.TryAdd("SqlConnection", new SqlServerProvider());
+            Providers.TryAdd("OracleConnection", new OracleProvider());
+            Providers.TryAdd("SQLiteConnection", new SqliteProvider());
+        }
+
         /// <summary>
         /// Converts to an object of T.
         /// </summary>
@@ -21,15 +30,17 @@ namespace Small.Net.Extensions
             return await dr.ConvertTo<T>(CancellationToken.None).ConfigureAwait(false);
         }
 
-        public static async Task<IList<T>> ConvertTo<T>(this DbDataReader dr, CancellationToken token) where T : class, new()
+        public static async Task<IList<T>> ConvertTo<T>(this DbDataReader dr, CancellationToken token)
+            where T : class, new()
         {
             var list = new List<T>();
             var helper = typeof(T).GetObjectReflectionHelper();
-            var columns = Enumerable.Range(0,dr.FieldCount).Select(i => new { Index = i, Name = dr.GetName(i) }).Where(c => helper.HasProperty(c.Name, PropertyType.Setter)).ToList();
+            var columns = Enumerable.Range(0, dr.FieldCount).Select(i => new {Index = i, Name = dr.GetName(i)})
+                .Where(c => helper.HasProperty(c.Name, PropertyType.Setter)).ToList();
 
             while (await dr.ReadAsync(token).ConfigureAwait(false))
             {
-                var obj =(T)helper.CreateInstance();
+                var obj = (T) helper.CreateInstance();
                 foreach (var column in columns) helper.SetValue(column.Name, obj, dr.GetValue(column.Index));
                 list.Add(obj);
 
@@ -46,23 +57,34 @@ namespace Small.Net.Extensions
         /// <param name="toTypes">To types.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">toTypes</exception>
-        public static async Task<IEnumerable<IEnumerable<object>>> ConvertTo(this DbDataReader dr, params Type[] toTypes)
+        public static async Task<IEnumerable<IEnumerable<object>>> ConvertTo(this DbDataReader dr,
+            params Type[] toTypes)
         {
             return await dr.ConvertTo(CancellationToken.None, toTypes).ConfigureAwait(false);
         }
 
-        public static async Task<IList<List<object>>> ConvertTo(this DbDataReader dr, CancellationToken token, params Type[] toTypes)
+        /// <summary>
+        /// Convert multi Datareader to different class
+        /// </summary>
+        /// <param name="dr"></param>
+        /// <param name="token"></param>
+        /// <param name="toTypes"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static async Task<IList<List<object>>> ConvertTo(this DbDataReader dr, CancellationToken token,
+            params Type[] toTypes)
         {
             if (toTypes == null) throw new ArgumentNullException(nameof(toTypes));
 
             var list = new List<List<object>>();
-            foreach(var type in toTypes)
+            foreach (var type in toTypes)
             {
                 if (token.IsCancellationRequested) break;
 
                 var currentList = new List<object>();
                 var helper = type.GetObjectReflectionHelper();
-                var columns = Enumerable.Range(0, dr.FieldCount).Select(i => new { Index = i, Name = dr.GetName(i) }).Where(c => helper.HasProperty(c.Name, PropertyType.Setter)).ToList();
+                var columns = Enumerable.Range(0, dr.FieldCount).Select(i => new {Index = i, Name = dr.GetName(i)})
+                    .Where(c => helper.HasProperty(c.Name, PropertyType.Setter)).ToList();
 
                 while (await dr.ReadAsync(token).ConfigureAwait(false))
                 {
@@ -77,6 +99,39 @@ namespace Small.Net.Extensions
             }
 
             return list;
+        }
+
+        private static readonly ConcurrentDictionary<string, IDbProvider> Providers =
+            new ConcurrentDictionary<string, IDbProvider>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Add IDbProvider to the list of providers
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="provider"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void AddDbProvider(this DbConnection connection, IDbProvider provider)
+        {
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
+            if (provider == null) throw new ArgumentNullException(nameof(provider));
+            var name = connection.GetType().Name;
+            Providers.TryAdd(name, provider);
+        }
+
+        /// <summary>
+        /// Get the IdbProvider for this connection
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static IDbProvider GetDbProvider(this DbConnection connection)
+        {
+            if (connection == null) throw new ArgumentNullException(nameof(connection));
+            var name = connection.GetType().Name;
+            if (!Providers.TryGetValue(name, out var provider))
+                throw new ArgumentOutOfRangeException(nameof(connection));
+            return provider;
         }
     }
 }

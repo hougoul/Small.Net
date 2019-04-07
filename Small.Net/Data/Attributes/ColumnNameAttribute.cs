@@ -8,7 +8,8 @@ namespace Small.Net.Data.Attributes
     /// useful for Database with column convention incompatible with C# property convention
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public sealed class ColumnAttribute : DatabaseAttribute
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public sealed class ColumnNameAttribute : DatabaseAttribute
     {
         /// <summary>
         /// Column Name
@@ -26,7 +27,8 @@ namespace Small.Net.Data.Attributes
         /// <param name="name">Column Name</param>
         /// <param name="dbConnectionType">Optional DbConnection Type</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public ColumnAttribute(string name, object dbType = null, Type dbConnectionType = null) : base(dbConnectionType)
+        public ColumnNameAttribute(string name, object dbType = null, Type dbConnectionType = null) : base(
+            dbConnectionType)
         {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
             Name = name;
