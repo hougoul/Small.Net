@@ -1,8 +1,11 @@
 namespace Small.Net.Data
 {
-    public class SqlServerProvider : IDbProvider
+    public class SqlServerProvider : DbProvider
     {
-        public bool CanInsertWithOutput { get; } = true;
-        public bool CanInsertWithMultiOutput { get; } = false;
+        public SqlServerProvider()
+        {
+            CanInsertWithOutput = true;
+            CanInsertWithMultiOutput = true;
+        }
     }
 }

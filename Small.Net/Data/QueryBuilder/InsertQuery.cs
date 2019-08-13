@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Net;
 using System.Text;
 using Small.Net.Data.Attributes;
+using Small.Net.Extensions;
 using Small.Net.Reflection;
 
 // ReSharper disable StaticMemberInGenericType
@@ -19,7 +22,7 @@ namespace Small.Net.Data.QueryBuilder
 
         private static List<QueryParameter> _parameters = new List<QueryParameter>();
 
-        private readonly TEntity _entity;
+        public TEntity Entity { get; set; }
 
         /// <summary>
         /// Default constructor
@@ -28,17 +31,17 @@ namespace Small.Net.Data.QueryBuilder
         /// <param name="connection"></param>
         public InsertQuery(TEntity entityToInsert, DbConnection connection) : base(connection)
         {
-            _entity = entityToInsert;
+            Entity = entityToInsert ?? throw new ArgumentNullException(nameof(entityToInsert));
         }
 
         public override TEntity Execute()
         {
             if (string.IsNullOrWhiteSpace(_query)) Build();
             // ToDo 
-            return _entity;
+            return Entity;
         }
 
-        private void Build()
+        public override string Build()
         {
             var helper = typeof(TEntity).GetObjectReflectionHelper();
             var dbConnectionType = Connection.GetType();
@@ -53,12 +56,13 @@ namespace Small.Net.Data.QueryBuilder
             var parameterPart = new StringBuilder(" VALUES (");
             var properties = helper.GetProperties(PropertyType.All);
 
+            var dbProvider = Connection.GetDbProvider();
             foreach (var property in properties.Values)
             {
                 if (!property.HasGetter) continue;
-                /* Todo for sqlite case doesn't support returning values */
+                /* Todo for sqlLite case doesn't support returning values */
                 if (property.Attributes.OfType<QueryIgnoreAttribute>()
-                    .Any(i => i.ForQuery.HasFlag(IgnoreForQuery.Insert))) continue;
+                    .Any(i => (i.ForQuery & IgnoreForQuery.Insert) == IgnoreForQuery.Insert)) continue;
 
                 /* Add Column */
                 var columnAttribute = property.Attributes.OfType<ColumnNameAttribute>()
@@ -66,11 +70,30 @@ namespace Small.Net.Data.QueryBuilder
                     .OrderBy(c => c.ForType == null ? 1 : 0).FirstOrDefault();
                 var columnName = (columnAttribute != null ? columnAttribute.Name : property.Name);
                 queryBuilder.Append(columnName);
+                queryBuilder.Append(Separator);
 
-                /* TODO Add Parameter */
+                /* TODO Add Parameter DbType */
+                var parameter = new QueryParameter()
+                {
+                    ParameterName = dbProvider.ComputeParameterName(property.Name),
+                    Direction = ParameterDirection.Input,
+                    PropertyAccessor = property
+                };
+                parameterPart.Append(parameter.ParameterName);
+                parameterPart.Append(Separator);
+                _parameters.Add(parameter);
             }
 
+            queryBuilder.Remove(queryBuilder.Length - 1, 1);
+            queryBuilder.Append(") ");
+            parameterPart.Remove(parameterPart.Length - 1, 1);
+            parameterPart.Append(")");
+            queryBuilder.Append(parameterPart);
+
+            /* TODO for SqlServer &  */
+
             _query = queryBuilder.ToString();
+            return _query;
         }
     }
 }

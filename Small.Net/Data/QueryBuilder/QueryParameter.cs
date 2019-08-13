@@ -1,4 +1,5 @@
 using System.Data;
+using Small.Net.Reflection;
 
 namespace Small.Net.Data.QueryBuilder
 {
@@ -15,7 +16,7 @@ namespace Small.Net.Data.QueryBuilder
         /// <summary>
         /// Parameter Value
         /// </summary>
-        internal string PropertyName;
+        internal IGetterSetter PropertyAccessor;
 
         /// <summary>
         /// Parameter DbType

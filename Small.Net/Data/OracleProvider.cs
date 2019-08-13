@@ -1,9 +1,12 @@
 namespace Small.Net.Data
 {
-    public class OracleProvider : IDbProvider
+    public class OracleProvider : DbProvider
     {
-        public bool CanInsertWithOutput { get; } = true;
-
-        public bool CanInsertWithMultiOutput { get; } = true;
+        public OracleProvider()
+        {
+            Prefix = ":P_";
+            CanInsertWithOutput = true;
+            CanInsertWithMultiOutput = true;
+        }
     }
 }

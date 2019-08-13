@@ -16,7 +16,7 @@ namespace Small.Net.Extensions
         {
             Providers.TryAdd("SqlConnection", new SqlServerProvider());
             Providers.TryAdd("OracleConnection", new OracleProvider());
-            Providers.TryAdd("SQLiteConnection", new SqliteProvider());
+            Providers.TryAdd("SQLiteConnection", new SqlLiteProvider());
         }
 
         /// <summary>
