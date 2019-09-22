@@ -18,11 +18,11 @@ namespace Small.Net.Data.QueryBuilder
         /// </summary>
         internal IGetterSetter PropertyAccessor;
 
-        /// <summary>
-        /// Parameter DbType
-        /// Object because we allow special client dbtype like oracle Clob....
-        /// </summary>
-        internal object DbType;
+        //   /// <summary>
+        //   /// Parameter DbType
+        //   /// Object because we allow special client dbtype like oracle Clob....
+        //   /// </summary>
+        //   internal object DbType;
 
         /// <summary>
         /// Parameter Direction
