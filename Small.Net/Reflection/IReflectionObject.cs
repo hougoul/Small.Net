@@ -7,7 +7,8 @@ namespace Small.Net.Reflection
     {
         All,
         Getter,
-        Setter
+        Setter,
+        AllowPrivateSetter
     };
 
     public interface IReflectionObject
@@ -21,7 +22,7 @@ namespace Small.Net.Reflection
         /// CSharp name of type T
         /// </summary>
         string ObjectName { get; }
-        
+
         /// <summary>
         /// Gets the <see cref="IGetterSetter"/> with the specified property name.
         /// </summary>
@@ -46,13 +47,15 @@ namespace Small.Net.Reflection
         /// <param name="obj">The object.</param>
         /// <returns></returns>
         object GetValue(string propertyName, object obj);
+
         /// <summary>
         /// Sets the value.
         /// </summary>
         /// <param name="propertyName">Name of the property.</param>
         /// <param name="obj">The object.</param>
         /// <param name="value">The value.</param>
-        void SetValue(string propertyName, object obj, object value);
+        /// <param name="force"></param>
+        void SetValue(string propertyName, object obj, object value, bool force = false);
 
         /// <summary>
         /// Determines whether the specified property name has property.
