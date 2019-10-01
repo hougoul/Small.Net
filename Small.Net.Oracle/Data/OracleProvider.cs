@@ -1,4 +1,6 @@
-namespace Small.Net.Data
+using Small.Net.Data;
+
+namespace Small.Net.Oracle.Data
 {
     public class OracleProvider : DbProvider
     {

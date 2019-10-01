@@ -1,4 +1,6 @@
-namespace Small.Net.Data
+using Small.Net.Data;
+
+namespace Small.Net.SqlServer.Data
 {
     public class SqlServerProvider : DbProvider
     {
