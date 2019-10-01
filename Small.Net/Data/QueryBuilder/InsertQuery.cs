@@ -56,7 +56,6 @@ namespace Small.Net.Data.QueryBuilder
             var parameterPart = new StringBuilder(" VALUES (");
             var properties = helper.GetProperties(PropertyType.All);
 
-            var dbProvider = Connection.GetDbProvider();
             foreach (var property in properties.Values)
             {
                 if (!property.HasGetter) continue;
@@ -75,7 +74,7 @@ namespace Small.Net.Data.QueryBuilder
                 /* TODO Add Parameter DbType */
                 var parameter = new QueryParameter()
                 {
-                    ParameterName = dbProvider.ComputeParameterName(property.Name),
+                    ParameterName = property.Name,
                     Direction = ParameterDirection.Input,
                     PropertyAccessor = property
                 };

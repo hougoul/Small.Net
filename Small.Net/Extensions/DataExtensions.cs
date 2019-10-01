@@ -12,13 +12,6 @@ namespace Small.Net.Extensions
 {
     public static class DataExtensions
     {
-        static DataExtensions()
-        {
-            Providers.TryAdd("SqlConnection", new SqlServerProvider());
-            Providers.TryAdd("OracleConnection", new OracleProvider());
-            Providers.TryAdd("SQLiteConnection", new SqlLiteProvider());
-        }
-
         /// <summary>
         /// Converts to an object of T.
         /// </summary>
@@ -99,39 +92,6 @@ namespace Small.Net.Extensions
             }
 
             return list;
-        }
-
-        private static readonly ConcurrentDictionary<string, IDbProvider> Providers =
-            new ConcurrentDictionary<string, IDbProvider>(StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Add IDbProvider to the list of providers
-        /// </summary>
-        /// <param name="connection"></param>
-        /// <param name="provider"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public static void AddDbProvider(this DbConnection connection, IDbProvider provider)
-        {
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
-            if (provider == null) throw new ArgumentNullException(nameof(provider));
-            var name = connection.GetType().Name;
-            Providers.TryAdd(name, provider);
-        }
-
-        /// <summary>
-        /// Get the IdbProvider for this connection
-        /// </summary>
-        /// <param name="connection"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static IDbProvider GetDbProvider(this DbConnection connection)
-        {
-            if (connection == null) throw new ArgumentNullException(nameof(connection));
-            var name = connection.GetType().Name;
-            if (!Providers.TryGetValue(name, out var provider))
-                throw new ArgumentOutOfRangeException(nameof(connection));
-            return provider;
         }
     }
 }
