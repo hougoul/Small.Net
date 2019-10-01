@@ -29,12 +29,12 @@ namespace Small.Net.Extensions
             var list = new List<T>();
             var helper = typeof(T).GetObjectReflectionHelper();
             var columns = Enumerable.Range(0, dr.FieldCount).Select(i => new {Index = i, Name = dr.GetName(i)})
-                .Where(c => helper.HasProperty(c.Name, PropertyType.Setter)).ToList();
+                .Where(c => helper.HasProperty(c.Name, PropertyType.AllowPrivateSetter)).ToList();
 
             while (await dr.ReadAsync(token).ConfigureAwait(false))
             {
                 var obj = (T) helper.CreateInstance();
-                foreach (var column in columns) helper.SetValue(column.Name, obj, dr.GetValue(column.Index));
+                foreach (var column in columns) helper.SetValue(column.Name, obj, dr.GetValue(column.Index), true);
                 list.Add(obj);
 
                 if (token.IsCancellationRequested) break;
@@ -77,12 +77,12 @@ namespace Small.Net.Extensions
                 var currentList = new List<object>();
                 var helper = type.GetObjectReflectionHelper();
                 var columns = Enumerable.Range(0, dr.FieldCount).Select(i => new {Index = i, Name = dr.GetName(i)})
-                    .Where(c => helper.HasProperty(c.Name, PropertyType.Setter)).ToList();
+                    .Where(c => helper.HasProperty(c.Name, PropertyType.AllowPrivateSetter)).ToList();
 
                 while (await dr.ReadAsync(token).ConfigureAwait(false))
                 {
                     var obj = helper.CreateInstance();
-                    foreach (var column in columns) helper.SetValue(column.Name, obj, dr.GetValue(column.Index));
+                    foreach (var column in columns) helper.SetValue(column.Name, obj, dr.GetValue(column.Index), true);
                     currentList.Add(obj);
                     if (token.IsCancellationRequested) break;
                 }
