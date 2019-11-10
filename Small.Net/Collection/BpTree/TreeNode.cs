@@ -13,6 +13,7 @@ namespace Small.Net.Collection
         }
 
         public abstract bool IsLeaf { get; }
+        public abstract int Count { get; }
 
         /// <summary>
         /// Add the item and return the root node

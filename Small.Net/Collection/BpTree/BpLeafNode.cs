@@ -26,6 +26,8 @@ namespace Small.Net.Collection
 
         public override bool IsLeaf => true;
 
+        public override int Count => _values.Count;
+
         public override TreeNode<TKey, TValue> Add(BpTreeOperation<TKey, TValue> op)
         {
             var result = InternalAdd(op);
@@ -57,9 +59,15 @@ namespace Small.Net.Collection
                 return result;
             }
 
+            var (split, key) = Split(op);
+            if (!split)
+            {
+                return result;
+            }
+
             /* Split list */
             result.Action = BpResultAction.Add;
-            result.Key = Split(op);
+            result.Key = key;
             result.Node = _rightLeaf;
 
             return result;
@@ -76,15 +84,53 @@ namespace Small.Net.Collection
             base.Dispose(disposing);
         }
 
-        private TKey Split(BpTreeOperation<TKey, TValue> op)
+        private Tuple<bool, TKey> Split(BpTreeOperation<TKey, TValue> op)
         {
-            var divAt = MaxNodeSize / 2;
-            var mid = _values[divAt];
-            var splitKey = op.ExtractKey(mid);
+            var (split, index, key) = GetSplitInformation(op);
+            if (!split)
+            {
+                return Tuple.Create(false, key);
+            }
+
             _rightLeaf = new BpLeafNode<TKey, TValue>(MaxNodeSize, this, _rightLeaf);
-            _rightLeaf._values.AddRange(_values.GetRange(divAt, _values.Count - divAt));
-            _values.RemoveRange(divAt, _values.Count - divAt);
-            return splitKey;
+            _rightLeaf._values.AddRange(_values.GetRange(index, _values.Count - index));
+            _values.RemoveRange(index, _values.Count - index);
+            return Tuple.Create(true, key);
+        }
+
+        private Tuple<bool, int, TKey> GetSplitInformation(BpTreeOperation<TKey, TValue> op)
+        {
+            var keyFirstElement = op.ExtractKey(_values[0]);
+            var keyLastElement = op.ExtractKey(_values[_values.Count - 1]);
+            if (keyFirstElement.Equals(keyLastElement))
+            {
+                return Tuple.Create(false, 0, default(TKey));
+            }
+
+            var splitIndex = MaxNodeSize / 2;
+            var splitKey = op.ExtractKey(_values[splitIndex - 1]);
+            var equalFirst = splitKey.Equals(keyFirstElement);
+            var equalSecond = splitKey.Equals(keyLastElement);
+            while (equalFirst || equalSecond || splitIndex == 1 || splitIndex == _values.Count)
+            {
+                if (equalFirst)
+                {
+                    splitIndex++;
+                }
+                else
+                {
+                    splitIndex--;
+                }
+
+                splitKey = op.ExtractKey(_values[splitIndex - 1]);
+            }
+
+            if (splitIndex == _values.Count)
+            {
+                splitIndex--;
+            }
+
+            return Tuple.Create(true, splitIndex, splitKey);
         }
 
         private int MinNumberOfChildren()

@@ -27,6 +27,8 @@ namespace Small.Net.Collection
 
         public override bool IsLeaf => false;
 
+        public override int Count => _keys.Count;
+
         public override TreeNode<TKey, TValue> Add(BpTreeOperation<TKey, TValue> op)
         {
             var result = InternalAdd(op);
