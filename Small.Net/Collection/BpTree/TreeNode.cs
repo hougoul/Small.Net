@@ -15,6 +15,8 @@ namespace Small.Net.Collection
         public abstract bool IsLeaf { get; }
         public abstract int Count { get; }
 
+        public abstract int ValueCount { get; }
+
         /// <summary>
         /// Add the item and return the root node
         /// </summary>
@@ -35,6 +37,10 @@ namespace Small.Net.Collection
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        internal virtual void ComputeValueCount()
+        {
         }
     }
 }

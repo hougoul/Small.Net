@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Small.Net.Collection
 {
@@ -8,6 +9,7 @@ namespace Small.Net.Collection
         private const int DefaultMaxNodeSize = 32;
         private readonly List<TKey> _keys = new List<TKey>();
         private readonly List<TreeNode<TKey, TValue>> _children = new List<TreeNode<TKey, TValue>>();
+        private int _valueCount;
 
         private BpInnerTreeNode(int maxNodeSize = DefaultMaxNodeSize) : base(maxNodeSize)
         {
@@ -23,11 +25,14 @@ namespace Small.Net.Collection
             _keys.Add(initialKey);
             _children.Add(initialLeftNode);
             _children.Add(initialRightNode);
+            ComputeValueCount();
         }
 
         public override bool IsLeaf => false;
 
         public override int Count => _keys.Count;
+
+        public override int ValueCount => _valueCount;
 
         public override TreeNode<TKey, TValue> Add(BpTreeOperation<TKey, TValue> op)
         {
@@ -43,6 +48,7 @@ namespace Small.Net.Collection
             if (index < 0) index = ~index;
             Debug.Assert(index >= 0);
             Debug.Assert(index < _children.Count);
+            _valueCount++;
             var result = _children[index].InternalAdd(op);
             if (result.Action == BpResultAction.Nothing)
             {
@@ -52,7 +58,15 @@ namespace Small.Net.Collection
             /* Insert the new node and key */
             _keys.Insert(index, result.Key);
             _children.Insert(index + 1, result.Node);
-            return _keys.Count < MaxNodeSize ? BpTreeResult<TKey, TValue>.Empty : Split();
+            if (_keys.Count < MaxNodeSize)
+            {
+                return BpTreeResult<TKey, TValue>.Empty;
+            }
+
+            var splitResult = Split();
+            ComputeValueCount();
+            splitResult.Node.ComputeValueCount();
+            return splitResult;
         }
 
         private BpTreeResult<TKey, TValue> Split()
@@ -72,6 +86,11 @@ namespace Small.Net.Collection
             _keys.RemoveRange(removeKeyIndex, _keys.Count - removeKeyIndex);
             result.Node = node;
             return result;
+        }
+
+        internal sealed override void ComputeValueCount()
+        {
+            _valueCount = _children.Sum(n => n.ValueCount);
         }
     }
 }

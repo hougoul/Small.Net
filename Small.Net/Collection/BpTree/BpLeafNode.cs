@@ -27,6 +27,7 @@ namespace Small.Net.Collection
         public override bool IsLeaf => true;
 
         public override int Count => _values.Count;
+        public override int ValueCount => _values.Count;
 
         public override TreeNode<TKey, TValue> Add(BpTreeOperation<TKey, TValue> op)
         {
@@ -109,20 +110,20 @@ namespace Small.Net.Collection
 
             var splitIndex = MaxNodeSize / 2;
             var splitKey = op.ExtractKey(_values[splitIndex - 1]);
-            var equalFirst = splitKey.Equals(keyFirstElement);
-            var equalSecond = splitKey.Equals(keyLastElement);
-            while (equalFirst || equalSecond || splitIndex == 1 || splitIndex == _values.Count)
+            var leftSplit = SearchLeftSplitIndex(splitIndex, splitKey, op);
+            var rightSplit = SearchRightSplitIndex(splitIndex, splitKey, op);
+            if (leftSplit == 0)
             {
-                if (equalFirst)
+                splitIndex = rightSplit;
+            }
+            else
+            {
+                if (leftSplit > (_values.Count - rightSplit))
                 {
-                    splitIndex++;
+                    splitIndex = leftSplit;
+                    splitKey = op.ExtractKey(_values[splitIndex - 1]);
                 }
-                else
-                {
-                    splitIndex--;
-                }
-
-                splitKey = op.ExtractKey(_values[splitIndex - 1]);
+                else splitIndex = rightSplit;
             }
 
             if (splitIndex == _values.Count)
@@ -131,6 +132,20 @@ namespace Small.Net.Collection
             }
 
             return Tuple.Create(true, splitIndex, splitKey);
+        }
+
+        private int SearchLeftSplitIndex(int currentSplitIndex, TKey currentSplitKey, BpTreeOperation<TKey, TValue> op)
+        {
+            var i = currentSplitIndex - 1;
+            while (i > 0 && currentSplitKey.Equals(op.ExtractKey(_values[i]))) i--;
+            return ++i;
+        }
+
+        private int SearchRightSplitIndex(int currentSplitIndex, TKey currentSplitKey, BpTreeOperation<TKey, TValue> op)
+        {
+            var i = currentSplitIndex;
+            while (i < _values.Count && currentSplitKey.Equals(op.ExtractKey(_values[i]))) i++;
+            return i;
         }
 
         private int MinNumberOfChildren()
