@@ -4,8 +4,7 @@ Small .Net is a librairy to give you some feature with simple code which cover t
 
 Current goal:
   - basic micro ORM (In progress)
-  - basic CSV from/to object (project)
-  - basic Json from/to object (project)
+  - basic Storage (In progress)
   ...
 
 ## Dependency
