@@ -34,6 +34,11 @@ namespace Small.Net.Reflection
         IGetterSetter this[string propertyName] { get; }
 
         /// <summary>
+        /// Object Converter
+        /// </summary>
+        IObjectConverter Converter { get; set; }
+
+        /// <summary>
         /// Creates the instance.
         /// </summary>
         /// <param name="args">The arguments.</param>

@@ -18,7 +18,7 @@ namespace Small.Net.Extensions
         /// <typeparam name="T"></typeparam>
         /// <param name="dr">The dr.</param>
         /// <returns></returns>
-        public static async Task<IEnumerable<T>> ConvertTo<T>(this DbDataReader dr) where T : class, new()
+        public static async Task<IList<T>> ConvertTo<T>(this DbDataReader dr) where T : class, new()
         {
             return await dr.ConvertTo<T>(CancellationToken.None).ConfigureAwait(false);
         }
@@ -26,21 +26,9 @@ namespace Small.Net.Extensions
         public static async Task<IList<T>> ConvertTo<T>(this DbDataReader dr, CancellationToken token)
             where T : class, new()
         {
-            var list = new List<T>();
-            var helper = typeof(T).GetObjectReflectionHelper();
-            var columns = Enumerable.Range(0, dr.FieldCount).Select(i => new {Index = i, Name = dr.GetName(i)})
-                .Where(c => helper.HasProperty(c.Name, PropertyType.AllowPrivateSetter)).ToList();
+            var helper = (IObjectConverter<T>) typeof(T).GetObjectReflectionHelper().Converter;
 
-            while (await dr.ReadAsync(token).ConfigureAwait(false))
-            {
-                var obj = (T) helper.CreateInstance();
-                foreach (var column in columns) helper.SetValue(column.Name, obj, dr.GetValue(column.Index), true);
-                list.Add(obj);
-
-                if (token.IsCancellationRequested) break;
-            }
-
-            return list;
+            return await helper.ConvertFromAsync(dr, token);
         }
 
         /// <summary>
@@ -64,30 +52,19 @@ namespace Small.Net.Extensions
         /// <param name="toTypes"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static async Task<IList<List<object>>> ConvertTo(this DbDataReader dr, CancellationToken token,
+        public static async Task<IList<IList<object>>> ConvertTo(this DbDataReader dr, CancellationToken token,
             params Type[] toTypes)
         {
             if (toTypes == null) throw new ArgumentNullException(nameof(toTypes));
 
-            var list = new List<List<object>>();
+            var list = new List<IList<object>>();
             foreach (var type in toTypes)
             {
                 if (token.IsCancellationRequested) break;
 
-                var currentList = new List<object>();
-                var helper = type.GetObjectReflectionHelper();
-                var columns = Enumerable.Range(0, dr.FieldCount).Select(i => new {Index = i, Name = dr.GetName(i)})
-                    .Where(c => helper.HasProperty(c.Name, PropertyType.AllowPrivateSetter)).ToList();
+                var helper = (IObjectConverter) type.GetObjectReflectionHelper().Converter;
 
-                while (await dr.ReadAsync(token).ConfigureAwait(false))
-                {
-                    var obj = helper.CreateInstance();
-                    foreach (var column in columns) helper.SetValue(column.Name, obj, dr.GetValue(column.Index), true);
-                    currentList.Add(obj);
-                    if (token.IsCancellationRequested) break;
-                }
-
-                list.Add(currentList);
+                list.Add(await helper.ConvertFromAsync(dr, token));
                 if (!(await dr.NextResultAsync(token).ConfigureAwait(false))) break;
             }
 

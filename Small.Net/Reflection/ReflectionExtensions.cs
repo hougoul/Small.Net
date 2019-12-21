@@ -6,18 +6,27 @@ namespace Small.Net.Reflection
 {
     public static class ReflectionExtensions
     {
-        private static readonly ConcurrentDictionary<Type, IReflectionObject> GetterSetterCache = new ConcurrentDictionary<Type, IReflectionObject>();
+        private static readonly ConcurrentDictionary<Type, IReflectionObject> GetterSetterCache =
+            new ConcurrentDictionary<Type, IReflectionObject>();
 
         public static IReflectionObject GetObjectReflectionHelper(this Type objType)
         {
             if (GetterSetterCache.TryGetValue(objType, out var reflectionObject)) return reflectionObject;
-            reflectionObject = (IReflectionObject)Activator.CreateInstance(typeof(ReflectionObject<>).MakeGenericType(objType));
-                
+            reflectionObject =
+                (IReflectionObject) Activator.CreateInstance(typeof(ReflectionObject<>).MakeGenericType(objType));
+
             GetterSetterCache.TryAdd(objType, reflectionObject);
             return reflectionObject;
         }
 
+        // ReSharper disable once FieldCanBeMadeReadOnly.Global
+        // ReSharper disable once MemberCanBePrivate.Global
+        // ReSharper disable once ConvertToConstant.Global
         public static string StringToBoolTrueValue = "Y";
+
+        // ReSharper disable once FieldCanBeMadeReadOnly.Global
+        // ReSharper disable once MemberCanBePrivate.Global
+        // ReSharper disable once ConvertToConstant.Global
         public static char CharToBoolTrueValue = 'Y';
 
         /// <summary>
@@ -33,14 +42,21 @@ namespace Small.Net.Reflection
                 if (value == null || Convert.IsDBNull(value)) return null;
                 conversionType = Nullable.GetUnderlyingType(conversionType);
             }
+
             Debug.Assert(conversionType != null);
             var valueType = value.GetType();
             if (valueType == conversionType) return value;
             Func<object> conversion = () => Convert.ChangeType(value, conversionType);
             if (conversionType == typeof(string)) conversion = () => Convert.ToString(value);
-            else if (conversionType.IsNumericType() && valueType.IsNumericType()) conversion = () => ConvertNumber(conversionType, (dynamic)value);
-            else if (conversionType == typeof(bool)) conversion = () => (valueType == typeof(string) ? (string)value == StringToBoolTrueValue || Convert.ToBoolean(value) : (valueType == typeof(char)? (char)value == CharToBoolTrueValue : Convert.ToBoolean(value)));
-            else if (conversionType.IsEnum) conversion = () => Enum.Parse(conversionType, Convert.ToString(value), true);
+            else if (conversionType.IsNumericType() && valueType.IsNumericType())
+                conversion = () => ConvertNumber(conversionType, (dynamic) value);
+            else if (conversionType == typeof(bool))
+                conversion = () =>
+                    (valueType == typeof(string)
+                        ? (string) value == StringToBoolTrueValue || Convert.ToBoolean(value)
+                        : (valueType == typeof(char) ? (char) value == CharToBoolTrueValue : Convert.ToBoolean(value)));
+            else if (conversionType.IsEnum)
+                conversion = () => Enum.Parse(conversionType, Convert.ToString(value), true);
             try
             {
                 return conversion();
@@ -58,25 +74,25 @@ namespace Small.Net.Reflection
                 case TypeCode.Byte:
                     return value;
                 case TypeCode.SByte:
-                    return (sbyte)value;
+                    return (sbyte) value;
                 case TypeCode.UInt16:
-                    return (ushort)value;
+                    return (ushort) value;
                 case TypeCode.UInt32:
-                    return (uint)value;
+                    return (uint) value;
                 case TypeCode.UInt64:
-                    return (ulong)value;
+                    return (ulong) value;
                 case TypeCode.Int16:
-                    return (short)value;
+                    return (short) value;
                 case TypeCode.Int32:
-                    return (int)value;
+                    return (int) value;
                 case TypeCode.Int64:
-                    return (long)value;
+                    return (long) value;
                 case TypeCode.Decimal:
-                    return (decimal)value;
+                    return (decimal) value;
                 case TypeCode.Double:
-                    return (double)value;
+                    return (double) value;
                 case TypeCode.Single:
-                    return (float)value;
+                    return (float) value;
                 default:
                     throw new InvalidOperationException("Type is not numeric one");
             }
@@ -87,27 +103,27 @@ namespace Small.Net.Reflection
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                    return (byte)value;
+                    return (byte) value;
                 case TypeCode.SByte:
                     return value;
                 case TypeCode.UInt16:
-                    return (ushort)value;
+                    return (ushort) value;
                 case TypeCode.UInt32:
-                    return (uint)value;
+                    return (uint) value;
                 case TypeCode.UInt64:
-                    return (ulong)value;
+                    return (ulong) value;
                 case TypeCode.Int16:
-                    return (short)value;
+                    return (short) value;
                 case TypeCode.Int32:
-                    return (int)value;
+                    return (int) value;
                 case TypeCode.Int64:
-                    return (long)value;
+                    return (long) value;
                 case TypeCode.Decimal:
-                    return (decimal)value;
+                    return (decimal) value;
                 case TypeCode.Double:
-                    return (double)value;
+                    return (double) value;
                 case TypeCode.Single:
-                    return (float)value;
+                    return (float) value;
                 default:
                     throw new InvalidOperationException("Type is not numeric one");
             }
@@ -118,27 +134,27 @@ namespace Small.Net.Reflection
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                    return (byte)value;
+                    return (byte) value;
                 case TypeCode.SByte:
-                    return (sbyte)value;
+                    return (sbyte) value;
                 case TypeCode.UInt16:
                     return value;
                 case TypeCode.UInt32:
-                    return (uint)value;
+                    return (uint) value;
                 case TypeCode.UInt64:
-                    return (ulong)value;
+                    return (ulong) value;
                 case TypeCode.Int16:
-                    return (short)value;
+                    return (short) value;
                 case TypeCode.Int32:
-                    return (int)value;
+                    return (int) value;
                 case TypeCode.Int64:
-                    return (long)value;
+                    return (long) value;
                 case TypeCode.Decimal:
-                    return (decimal)value;
+                    return (decimal) value;
                 case TypeCode.Double:
-                    return (double)value;
+                    return (double) value;
                 case TypeCode.Single:
-                    return (float)value;
+                    return (float) value;
                 default:
                     throw new InvalidOperationException("Type is not numeric one");
             }
@@ -149,27 +165,27 @@ namespace Small.Net.Reflection
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                    return (byte)value;
+                    return (byte) value;
                 case TypeCode.SByte:
-                    return (sbyte)value;
+                    return (sbyte) value;
                 case TypeCode.UInt16:
-                    return (ushort)value;
+                    return (ushort) value;
                 case TypeCode.UInt32:
                     return value;
                 case TypeCode.UInt64:
-                    return (ulong)value;
+                    return (ulong) value;
                 case TypeCode.Int16:
-                    return (short)value;
+                    return (short) value;
                 case TypeCode.Int32:
-                    return (int)value;
+                    return (int) value;
                 case TypeCode.Int64:
-                    return (long)value;
+                    return (long) value;
                 case TypeCode.Decimal:
-                    return (decimal)value;
+                    return (decimal) value;
                 case TypeCode.Double:
-                    return (double)value;
+                    return (double) value;
                 case TypeCode.Single:
-                    return (float)value;
+                    return (float) value;
                 default:
                     throw new InvalidOperationException("Type is not numeric one");
             }
@@ -180,27 +196,27 @@ namespace Small.Net.Reflection
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                    return (byte)value;
+                    return (byte) value;
                 case TypeCode.SByte:
-                    return (sbyte)value;
+                    return (sbyte) value;
                 case TypeCode.UInt16:
-                    return (ushort)value;
+                    return (ushort) value;
                 case TypeCode.UInt32:
-                    return (uint)value;
+                    return (uint) value;
                 case TypeCode.UInt64:
                     return value;
                 case TypeCode.Int16:
-                    return (short)value;
+                    return (short) value;
                 case TypeCode.Int32:
-                    return (int)value;
+                    return (int) value;
                 case TypeCode.Int64:
-                    return (long)value;
+                    return (long) value;
                 case TypeCode.Decimal:
-                    return (decimal)value;
+                    return (decimal) value;
                 case TypeCode.Double:
-                    return (double)value;
+                    return (double) value;
                 case TypeCode.Single:
-                    return (float)value;
+                    return (float) value;
                 default:
                     throw new InvalidOperationException("Type is not numeric one");
             }
@@ -211,27 +227,27 @@ namespace Small.Net.Reflection
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                    return (byte)value;
+                    return (byte) value;
                 case TypeCode.SByte:
-                    return (sbyte)value;
+                    return (sbyte) value;
                 case TypeCode.UInt16:
-                    return (ushort)value;
+                    return (ushort) value;
                 case TypeCode.UInt32:
-                    return (uint)value;
+                    return (uint) value;
                 case TypeCode.UInt64:
-                    return (ulong)value;
+                    return (ulong) value;
                 case TypeCode.Int16:
                     return value;
                 case TypeCode.Int32:
-                    return (int)value;
+                    return (int) value;
                 case TypeCode.Int64:
-                    return (long)value;
+                    return (long) value;
                 case TypeCode.Decimal:
-                    return (decimal)value;
+                    return (decimal) value;
                 case TypeCode.Double:
-                    return (double)value;
+                    return (double) value;
                 case TypeCode.Single:
-                    return (float)value;
+                    return (float) value;
                 default:
                     throw new InvalidOperationException("Type is not numeric one");
             }
@@ -242,27 +258,27 @@ namespace Small.Net.Reflection
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                    return (byte)value;
+                    return (byte) value;
                 case TypeCode.SByte:
-                    return (sbyte)value;
+                    return (sbyte) value;
                 case TypeCode.UInt16:
-                    return (ushort)value;
+                    return (ushort) value;
                 case TypeCode.UInt32:
-                    return (uint)value;
+                    return (uint) value;
                 case TypeCode.UInt64:
-                    return (ulong)value;
+                    return (ulong) value;
                 case TypeCode.Int16:
-                    return (short)value;
+                    return (short) value;
                 case TypeCode.Int32:
                     return value;
                 case TypeCode.Int64:
-                    return (long)value;
+                    return (long) value;
                 case TypeCode.Decimal:
-                    return (decimal)value;
+                    return (decimal) value;
                 case TypeCode.Double:
-                    return (double)value;
+                    return (double) value;
                 case TypeCode.Single:
-                    return (float)value;
+                    return (float) value;
                 default:
                     throw new InvalidOperationException("Type is not numeric one");
             }
@@ -273,27 +289,27 @@ namespace Small.Net.Reflection
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                    return (byte)value;
+                    return (byte) value;
                 case TypeCode.SByte:
-                    return (sbyte)value;
+                    return (sbyte) value;
                 case TypeCode.UInt16:
-                    return (ushort)value;
+                    return (ushort) value;
                 case TypeCode.UInt32:
-                    return (uint)value;
+                    return (uint) value;
                 case TypeCode.UInt64:
-                    return (ulong)value;
+                    return (ulong) value;
                 case TypeCode.Int16:
-                    return (short)value;
+                    return (short) value;
                 case TypeCode.Int32:
-                    return (int)value;
+                    return (int) value;
                 case TypeCode.Int64:
                     return value;
                 case TypeCode.Decimal:
-                    return (decimal)value;
+                    return (decimal) value;
                 case TypeCode.Double:
-                    return (double)value;
+                    return (double) value;
                 case TypeCode.Single:
-                    return (float)value;
+                    return (float) value;
                 default:
                     throw new InvalidOperationException("Type is not numeric one");
             }
@@ -304,27 +320,27 @@ namespace Small.Net.Reflection
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                    return (byte)value;
+                    return (byte) value;
                 case TypeCode.SByte:
-                    return (sbyte)value;
+                    return (sbyte) value;
                 case TypeCode.UInt16:
-                    return (ushort)value;
+                    return (ushort) value;
                 case TypeCode.UInt32:
-                    return (uint)value;
+                    return (uint) value;
                 case TypeCode.UInt64:
-                    return (ulong)value;
+                    return (ulong) value;
                 case TypeCode.Int16:
-                    return (short)value;
+                    return (short) value;
                 case TypeCode.Int32:
-                    return (int)value;
+                    return (int) value;
                 case TypeCode.Int64:
-                    return (long)value;
+                    return (long) value;
                 case TypeCode.Decimal:
                     return value;
                 case TypeCode.Double:
-                    return (double)value;
+                    return (double) value;
                 case TypeCode.Single:
-                    return (float)value;
+                    return (float) value;
                 default:
                     throw new InvalidOperationException("Type is not numeric one");
             }
@@ -335,27 +351,27 @@ namespace Small.Net.Reflection
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                    return (byte)value;
+                    return (byte) value;
                 case TypeCode.SByte:
-                    return (sbyte)value;
+                    return (sbyte) value;
                 case TypeCode.UInt16:
-                    return (ushort)value;
+                    return (ushort) value;
                 case TypeCode.UInt32:
-                    return (uint)value;
+                    return (uint) value;
                 case TypeCode.UInt64:
-                    return (ulong)value;
+                    return (ulong) value;
                 case TypeCode.Int16:
-                    return (short)value;
+                    return (short) value;
                 case TypeCode.Int32:
-                    return (int)value;
+                    return (int) value;
                 case TypeCode.Int64:
-                    return (long)value;
+                    return (long) value;
                 case TypeCode.Decimal:
-                    return (decimal)value;
+                    return (decimal) value;
                 case TypeCode.Double:
                     return value;
                 case TypeCode.Single:
-                    return (float)value;
+                    return (float) value;
                 default:
                     throw new InvalidOperationException("Type is not numeric one");
             }
@@ -366,25 +382,25 @@ namespace Small.Net.Reflection
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                    return (byte)value;
+                    return (byte) value;
                 case TypeCode.SByte:
-                    return (sbyte)value;
+                    return (sbyte) value;
                 case TypeCode.UInt16:
-                    return (ushort)value;
+                    return (ushort) value;
                 case TypeCode.UInt32:
-                    return (uint)value;
+                    return (uint) value;
                 case TypeCode.UInt64:
-                    return (ulong)value;
+                    return (ulong) value;
                 case TypeCode.Int16:
-                    return (short)value;
+                    return (short) value;
                 case TypeCode.Int32:
-                    return (int)value;
+                    return (int) value;
                 case TypeCode.Int64:
-                    return (long)value;
+                    return (long) value;
                 case TypeCode.Decimal:
-                    return (decimal)value;
+                    return (decimal) value;
                 case TypeCode.Double:
-                    return (double)value;
+                    return (double) value;
                 case TypeCode.Single:
                     return value;
                 default:
@@ -405,6 +421,7 @@ namespace Small.Net.Reflection
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == NullableType;
         }
+
         /// <summary>
         /// Determines whether [is numeric type] [the specified type].
         /// </summary>
@@ -432,6 +449,5 @@ namespace Small.Net.Reflection
                     return false;
             }
         }
-
     }
 }

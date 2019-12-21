@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Small.Net.Reflection
 {
-    public class ReflectionObject<T> : IReflectionObject where T : class, new()
+    public class ReflectionObject<T> : IReflectionObject where T : class
     {
         private readonly Dictionary<string, IGetterSetter> _properties =
             new Dictionary<string, IGetterSetter>(StringComparer.OrdinalIgnoreCase);
@@ -15,6 +15,7 @@ namespace Small.Net.Reflection
         private delegate object FastActivator(params object[] args);
 
         private readonly FastActivator _activator;
+        private IObjectConverter _converter;
 
         /// <summary>
         /// Attribute on Type
@@ -48,6 +49,19 @@ namespace Small.Net.Reflection
                 if (!_properties.ContainsKey(propertyName)) throw new ArgumentOutOfRangeException(nameof(propertyName));
                 return _properties[propertyName];
             }
+        }
+
+        /// <summary>
+        /// Object Converter
+        /// </summary>
+        public IObjectConverter Converter
+        {
+            get
+            {
+                return _converter ?? (_converter =
+                           AssemblyHelper.CreateIObjectConverter<T>(_properties, () => CreateInstance()));
+            }
+            set => _converter = value;
         }
 
         /// <summary>
