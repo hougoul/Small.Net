@@ -40,7 +40,6 @@ namespace Small.Net.Collection
 
             /* Node was split --> create a BpInnerTreeNode */
             return new BpInnerTreeNode<TKey, TValue>(result.Key, this, result.Node);
-            ;
         }
 
         /// <summary>
@@ -55,6 +54,7 @@ namespace Small.Net.Collection
             if (index < 0) index = ~index;
             _values.Insert(index, op.Value);
             var result = BpTreeResult<TKey, TValue>.Empty;
+            result.Success = true;
             if (_values.Count != MaxNodeSize)
             {
                 return result;
@@ -71,6 +71,100 @@ namespace Small.Net.Collection
             result.Key = key;
             result.Node = _rightLeaf;
 
+            return result;
+        }
+
+        internal override TKey GetMaxKey(BpTreeOperation<TKey, TValue> op)
+        {
+            return op.ExtractKey(_values[_values.Count - 1]);
+        }
+
+        public override TreeNode<TKey, TValue> Remove(BpTreeOperation<TKey, TValue> op)
+        {
+            var result = InternalRemove(op);
+            /* in all case if we come here we stay here */
+            return this;
+        }
+
+        internal override BpTreeResult<TKey, TValue> InternalRemove(BpTreeOperation<TKey, TValue> op)
+        {
+            var comparer = new BpLeafValueComparer<TKey, TValue>(op.ExtractKey, op.Comparer);
+            var index = _values.BinarySearch(op.Value, comparer);
+            var result = BpTreeResult<TKey, TValue>.Empty;
+            if (index < 0)
+            {
+                /* we didn't find the object to remove */
+                return result;
+            }
+
+            if (op.Value.Equals(_values[index]))
+            {
+                _values.RemoveAt(index);
+                result.Success = true;
+            }
+            else
+            {
+                /* search item */
+                var leftIndex = SearchLeftIndex(index, op.Key, op);
+                var rightIndex = SearchRightIndex(index, op.Key, op) - 1;
+                var maxCount = ((rightIndex - leftIndex) / 2) + 1;
+                var isRemoved = false;
+                for (var i = 0; i < maxCount; i++)
+                {
+                    var leftElement = _values[leftIndex + i];
+                    if (op.Value.Equals(leftElement))
+                    {
+                        _values.RemoveAt(leftIndex + i);
+                        result.Success = true;
+                        isRemoved = true;
+                        break;
+                    }
+
+                    var rightElement = _values[rightIndex - i];
+                    if (!op.Value.Equals(rightElement))
+                    {
+                        continue;
+                    }
+
+                    _values.RemoveAt(rightIndex - i);
+                    result.Success = true;
+                    isRemoved = true;
+                    break;
+                }
+
+                if (!isRemoved)
+                {
+                    return result;
+                }
+            }
+
+            if (_values.Count != 0)
+            {
+                return result;
+            }
+
+            switch (_leftLeaf)
+            {
+                case null when _rightLeaf == null:
+                    return result;
+                case null:
+                    _rightLeaf._leftLeaf = null;
+                    result.Action = BpResultAction.Remove;
+                    result.Node = this;
+                    return result;
+            }
+
+            result.Action = BpResultAction.Remove;
+            result.Node = this;
+
+            if (_rightLeaf == null)
+            {
+                _leftLeaf._rightLeaf = null;
+                return result;
+            }
+
+            _leftLeaf._rightLeaf = _rightLeaf;
+            _rightLeaf._leftLeaf = _leftLeaf;
             return result;
         }
 
@@ -110,8 +204,8 @@ namespace Small.Net.Collection
 
             var splitIndex = MaxNodeSize / 2;
             var splitKey = op.ExtractKey(_values[splitIndex - 1]);
-            var leftSplit = SearchLeftSplitIndex(splitIndex, splitKey, op);
-            var rightSplit = SearchRightSplitIndex(splitIndex, splitKey, op);
+            var leftSplit = SearchLeftIndex(splitIndex, splitKey, op);
+            var rightSplit = SearchRightIndex(splitIndex, splitKey, op);
             if (leftSplit == 0)
             {
                 splitIndex = rightSplit;
@@ -134,14 +228,14 @@ namespace Small.Net.Collection
             return Tuple.Create(true, splitIndex, splitKey);
         }
 
-        private int SearchLeftSplitIndex(int currentSplitIndex, TKey currentSplitKey, BpTreeOperation<TKey, TValue> op)
+        private int SearchLeftIndex(int currentSplitIndex, TKey currentSplitKey, BpTreeOperation<TKey, TValue> op)
         {
             var i = currentSplitIndex - 1;
-            while (i > 0 && currentSplitKey.Equals(op.ExtractKey(_values[i]))) i--;
+            while (i >= 0 && currentSplitKey.Equals(op.ExtractKey(_values[i]))) i--;
             return ++i;
         }
 
-        private int SearchRightSplitIndex(int currentSplitIndex, TKey currentSplitKey, BpTreeOperation<TKey, TValue> op)
+        private int SearchRightIndex(int currentSplitIndex, TKey currentSplitKey, BpTreeOperation<TKey, TValue> op)
         {
             var i = currentSplitIndex;
             while (i < _values.Count && currentSplitKey.Equals(op.ExtractKey(_values[i]))) i++;

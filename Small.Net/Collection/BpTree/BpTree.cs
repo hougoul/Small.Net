@@ -24,16 +24,6 @@ namespace Small.Net.Collection
             _accessor = keyAccessor ?? throw new ArgumentNullException(nameof(keyAccessor));
         }
 
-        public IEnumerator<TObject> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
         public void Add(TObject item)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
@@ -47,6 +37,23 @@ namespace Small.Net.Collection
             operation.Value = item;
             operation.ExtractKey = _accessor;
             _rootNode = _rootNode.Add(operation);
+        }
+
+        public bool Remove(TObject item)
+        {
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (_rootNode == null)
+            {
+                /* Nothing to do */
+                return true;
+            }
+
+            var operation = BpTreeOperation<TProperty, TObject>.Empty;
+            operation.Key = _accessor(item);
+            operation.Value = item;
+            operation.ExtractKey = _accessor;
+            _rootNode = _rootNode.Remove(operation);
+            return true;
         }
 
         public void Clear()
@@ -65,9 +72,14 @@ namespace Small.Net.Collection
             throw new NotImplementedException();
         }
 
-        public bool Remove(TObject item)
+        public IEnumerator<TObject> GetEnumerator()
         {
             throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         public void Dispose()

@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Net;
 using System.Text;
 using Small.Net.Data.Attributes;
-using Small.Net.Extensions;
 using Small.Net.Reflection;
 
 // ReSharper disable StaticMemberInGenericType

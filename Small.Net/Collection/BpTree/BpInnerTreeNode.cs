@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -67,6 +68,56 @@ namespace Small.Net.Collection
             ComputeValueCount();
             splitResult.Node.ComputeValueCount();
             return splitResult;
+        }
+
+        internal override TKey GetMaxKey(BpTreeOperation<TKey, TValue> op)
+        {
+            return _children[_children.Count - 1].GetMaxKey(op);
+        }
+
+        public override TreeNode<TKey, TValue> Remove(BpTreeOperation<TKey, TValue> op)
+        {
+            var result = InternalRemove(op);
+            return result.Action == BpResultAction.Nothing ? this : result.Node;
+        }
+
+        internal override BpTreeResult<TKey, TValue> InternalRemove(BpTreeOperation<TKey, TValue> op)
+        {
+            var index = _keys.BinarySearch(op.Key, op.Comparer);
+            if (index < 0) index = ~index;
+            Debug.Assert(index >= 0);
+            Debug.Assert(index < _children.Count);
+            var childNode = _children[index];
+            var childCount = childNode.Count;
+            var result = _children[index].InternalRemove(op);
+            if (result.Success)
+            {
+                _valueCount--;
+            }
+
+            if (result.Action == BpResultAction.Nothing)
+            {
+                return result;
+            }
+
+            Debug.Assert(result.Action == BpResultAction.Remove);
+            _children.RemoveAt(index);
+            if (_children.Count > 0 && _keys.Count == 1)
+            {
+                _keys.Add(GetMaxKey(op));
+            }
+
+            _keys.RemoveAt(index > 0 ? index - 1 : index);
+            if (_children.Count == 0)
+            {
+                return result;
+            }
+
+            var success = result.Success;
+            result = BpTreeResult<TKey, TValue>.Empty;
+            result.Success = success;
+
+            return result;
         }
 
         private BpTreeResult<TKey, TValue> Split()

@@ -26,6 +26,17 @@ namespace Small.Net.Collection
 
         internal abstract BpTreeResult<TKey, TValue> InternalAdd(BpTreeOperation<TKey, TValue> op);
 
+        internal abstract TKey GetMaxKey(BpTreeOperation<TKey, TValue> op);
+
+        /// <summary>
+        /// Remove the item and return the root node
+        /// </summary>
+        /// <param name="op"></param>
+        /// <returns></returns>
+        public abstract TreeNode<TKey, TValue> Remove(BpTreeOperation<TKey, TValue> op);
+
+        internal abstract BpTreeResult<TKey, TValue> InternalRemove(BpTreeOperation<TKey, TValue> op);
+
         protected bool IsDisposed { get; private set; }
 
         protected virtual void Dispose(bool disposing)
@@ -36,7 +47,6 @@ namespace Small.Net.Collection
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         internal virtual void ComputeValueCount()
