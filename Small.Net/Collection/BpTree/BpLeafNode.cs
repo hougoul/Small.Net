@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Small.Net.Collection
 {
@@ -86,6 +87,8 @@ namespace Small.Net.Collection
             return this;
         }
 
+        /* On remove I don't care about tree organisation */
+
         internal override BpTreeResult<TKey, TValue> InternalRemove(BpTreeOperation<TKey, TValue> op)
         {
             var comparer = new BpLeafValueComparer<TKey, TValue>(op.ExtractKey, op.Comparer);
@@ -105,44 +108,55 @@ namespace Small.Net.Collection
             else
             {
                 /* search item */
-                var leftIndex = SearchLeftIndex(index, op.Key, op);
-                var rightIndex = SearchRightIndex(index, op.Key, op) - 1;
-                var maxCount = ((rightIndex - leftIndex) / 2) + 1;
-                var isRemoved = false;
-                for (var i = 0; i < maxCount; i++)
-                {
-                    var leftElement = _values[leftIndex + i];
-                    if (op.Value.Equals(leftElement))
-                    {
-                        _values.RemoveAt(leftIndex + i);
-                        result.Success = true;
-                        isRemoved = true;
-                        break;
-                    }
-
-                    var rightElement = _values[rightIndex - i];
-                    if (!op.Value.Equals(rightElement))
-                    {
-                        continue;
-                    }
-
-                    _values.RemoveAt(rightIndex - i);
-                    result.Success = true;
-                    isRemoved = true;
-                    break;
-                }
-
-                if (!isRemoved)
+                if (!SearchAndRemoveItem(op, index, ref result))
                 {
                     return result;
                 }
             }
 
-            if (_values.Count != 0)
+            if (_values.Count == 0)
             {
-                return result;
+                return DeleteNode(result);
             }
 
+            return result;
+        }
+
+        private bool SearchAndRemoveItem(BpTreeOperation<TKey, TValue> op, int index,
+            ref BpTreeResult<TKey, TValue> result)
+        {
+            var leftIndex = SearchLeftIndex(index, op.Key, op);
+            var rightIndex = SearchRightIndex(index, op.Key, op) - 1;
+            var maxCount = ((rightIndex - leftIndex) / 2) + 1;
+            var isRemoved = false;
+            for (var i = 0; i < maxCount; i++)
+            {
+                var leftElement = _values[leftIndex + i];
+                if (op.Value.Equals(leftElement))
+                {
+                    _values.RemoveAt(leftIndex + i);
+                    result.Success = true;
+                    isRemoved = true;
+                    break;
+                }
+
+                var rightElement = _values[rightIndex - i];
+                if (!op.Value.Equals(rightElement))
+                {
+                    continue;
+                }
+
+                _values.RemoveAt(rightIndex - i);
+                result.Success = true;
+                isRemoved = true;
+                break;
+            }
+
+            return isRemoved;
+        }
+
+        private BpTreeResult<TKey, TValue> DeleteNode(BpTreeResult<TKey, TValue> result)
+        {
             switch (_leftLeaf)
             {
                 case null when _rightLeaf == null:
@@ -157,13 +171,12 @@ namespace Small.Net.Collection
             result.Action = BpResultAction.Remove;
             result.Node = this;
 
+            _leftLeaf._rightLeaf = _rightLeaf;
             if (_rightLeaf == null)
             {
-                _leftLeaf._rightLeaf = null;
                 return result;
             }
 
-            _leftLeaf._rightLeaf = _rightLeaf;
             _rightLeaf._leftLeaf = _leftLeaf;
             return result;
         }

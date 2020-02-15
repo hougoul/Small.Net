@@ -7,6 +7,8 @@ namespace Small.Net.Collection
 {
     /// <summary>
     /// B+Tree for class storage and indexing
+    ///
+    /// TODO Calculate fragmentation and do defragmentation if needed
     /// </summary>
     /// <typeparam name="TObject"></typeparam>
     /// <typeparam name="TProperty"></typeparam>
