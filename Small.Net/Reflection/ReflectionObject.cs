@@ -15,7 +15,6 @@ namespace Small.Net.Reflection
         private delegate object FastActivator(params object[] args);
 
         private readonly FastActivator _activator;
-        private IObjectConverter _converter;
 
         /// <summary>
         /// Attribute on Type
@@ -27,7 +26,7 @@ namespace Small.Net.Reflection
         /// </summary>
         public string ObjectName { get; }
 
-        public ReflectionObject()
+        public ReflectionObject(IObjectConverter converter)
         {
             var type = typeof(T);
             TypeAttributes = type.GetCustomAttributes().ToArray();
@@ -35,6 +34,7 @@ namespace Small.Net.Reflection
 
             InitialiseGetterSetter();
             _activator = InitialiseActivator();
+            Converter = converter ?? new DefaultObjectConverter<T>(_properties, createInstance: () => _activator());
         }
 
         /// <summary>
@@ -54,15 +54,7 @@ namespace Small.Net.Reflection
         /// <summary>
         /// Object Converter
         /// </summary>
-        public IObjectConverter Converter
-        {
-            get
-            {
-                return _converter ?? (_converter =
-                           AssemblyHelper.CreateIObjectConverter<T>(_properties, () => CreateInstance()));
-            }
-            set => _converter = value;
-        }
+        public IObjectConverter Converter { get; set; }
 
         /// <summary>
         /// Create Instance of type T
@@ -97,6 +89,7 @@ namespace Small.Net.Reflection
         /// <param name="propertyName"></param>
         /// <param name="obj"></param>
         /// <param name="value"></param>
+        /// <param name="force"></param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
         public void SetValue(string propertyName, object obj, object value, bool force = false)

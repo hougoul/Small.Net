@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace Small.Net.Reflection
@@ -8,7 +7,8 @@ namespace Small.Net.Reflection
     {
         public static IReflectionObject GetObjectReflectionHelper(this Type objType)
         {
-            return (IReflectionObject) Activator.CreateInstance(typeof(ReflectionObject<>).MakeGenericType(objType));
+            return (IReflectionObject) Activator.CreateInstance(typeof(ReflectionObject<>).MakeGenericType(objType),
+                (object) null);
         }
 
         // ReSharper disable once FieldCanBeMadeReadOnly.Global
@@ -409,7 +409,7 @@ namespace Small.Net.Reflection
         /// <returns>
         ///   <c>true</c> if [is nullable type] [the specified type]; otherwise, <c>false</c>.
         /// </returns>
-        public static bool IsNullableType(this Type type)
+        private static bool IsNullableType(this Type type)
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == NullableType;
         }
@@ -421,7 +421,7 @@ namespace Small.Net.Reflection
         /// <returns>
         ///   <c>true</c> if [is numeric type] [the specified type]; otherwise, <c>false</c>.
         /// </returns>
-        public static bool IsNumericType(this Type type)
+        private static bool IsNumericType(this Type type)
         {
             switch (Type.GetTypeCode(type))
             {

@@ -30,13 +30,13 @@ namespace Small.Net.Reflection
 
             while (await dr.ReadAsync(token).ConfigureAwait(false))
             {
-                var obj = (TObject) _instanceCreator();
+                var obj = _instanceCreator();
                 foreach (var column in columns)
                 {
                     column.Property.SetValue(obj, dr.GetValue(column.Index), true);
                 }
 
-                list.Add(obj);
+                list.Add((TObject) obj);
 
                 if (token.IsCancellationRequested) break;
             }
