@@ -23,15 +23,17 @@ namespace Small.Net.Reflection
         public async Task<IList<TObject>> ConvertFromAsync(DbDataReader dr, CancellationToken token)
         {
             var list = new List<TObject>();
-            var columns = Enumerable.Range(0, dr.FieldCount).Select(i => new {Index = i, Name = dr.GetName(i)})
-                .Where(c => _properties.TryGetValue(c.Name, out var p) && p.CanForceSetter).ToList();
+            var columns = Enumerable.Range(0, dr.FieldCount)
+                .Where(i => _properties.TryGetValue(dr.GetName(i), out var p) && p.CanForceSetter)
+                .Select(i => new {Index = i, Property = _properties[dr.GetName(i)]})
+                .ToList();
 
             while (await dr.ReadAsync(token).ConfigureAwait(false))
             {
                 var obj = (TObject) _instanceCreator();
                 foreach (var column in columns)
                 {
-                    _properties[column.Name].SetValue(obj, dr.GetValue(column.Index), true);
+                    column.Property.SetValue(obj, dr.GetValue(column.Index), true);
                 }
 
                 list.Add(obj);

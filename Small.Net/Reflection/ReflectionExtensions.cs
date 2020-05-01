@@ -6,17 +6,9 @@ namespace Small.Net.Reflection
 {
     public static class ReflectionExtensions
     {
-        private static readonly ConcurrentDictionary<Type, IReflectionObject> GetterSetterCache =
-            new ConcurrentDictionary<Type, IReflectionObject>();
-
         public static IReflectionObject GetObjectReflectionHelper(this Type objType)
         {
-            if (GetterSetterCache.TryGetValue(objType, out var reflectionObject)) return reflectionObject;
-            reflectionObject =
-                (IReflectionObject) Activator.CreateInstance(typeof(ReflectionObject<>).MakeGenericType(objType));
-
-            GetterSetterCache.TryAdd(objType, reflectionObject);
-            return reflectionObject;
+            return (IReflectionObject) Activator.CreateInstance(typeof(ReflectionObject<>).MakeGenericType(objType));
         }
 
         // ReSharper disable once FieldCanBeMadeReadOnly.Global

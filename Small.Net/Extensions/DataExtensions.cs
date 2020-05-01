@@ -1,12 +1,9 @@
 ﻿using Small.Net.Reflection;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Small.Net.Data;
 
 namespace Small.Net.Extensions
 {
@@ -23,6 +20,13 @@ namespace Small.Net.Extensions
             return await dr.ConvertTo<T>(CancellationToken.None).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Convert a DataReader to a list of object
+        /// </summary>
+        /// <param name="dr"></param>
+        /// <param name="token"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static async Task<IList<T>> ConvertTo<T>(this DbDataReader dr, CancellationToken token)
             where T : class, new()
         {
@@ -62,7 +66,7 @@ namespace Small.Net.Extensions
             {
                 if (token.IsCancellationRequested) break;
 
-                var helper = (IObjectConverter) type.GetObjectReflectionHelper().Converter;
+                var helper = type.GetObjectReflectionHelper().Converter;
 
                 list.Add(await helper.ConvertFromAsync(dr, token));
                 if (!(await dr.NextResultAsync(token).ConfigureAwait(false))) break;

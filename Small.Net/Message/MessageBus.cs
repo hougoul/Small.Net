@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace Small.Net.Message {
+namespace Small.Net.Message
+{
     public sealed class MessageBus<T> : IMessageBus<T>, IUnSubscribeMessageBus<T>
     {
         private readonly HashSet<MessageListener<T>> _listeners = new HashSet<MessageListener<T>>();
@@ -29,20 +30,20 @@ namespace Small.Net.Message {
         }
 
         #region IDisposable Support
-        private bool disposedValue;
+
+        private bool _disposedValue;
 
         public void Dispose()
         {
-            if (disposedValue) return;
-            foreach(var listener in _listeners)
+            if (_disposedValue) return;
+            foreach (var listener in _listeners)
             {
                 listener.Dispose();
             }
 
-            disposedValue = true;
+            _disposedValue = true;
         }
 
         #endregion
-
     }
 }
