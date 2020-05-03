@@ -1,6 +1,5 @@
 using System;
-using System.Linq;
-using System.Text;
+using System.Linq.Expressions;
 using Small.Net.Expressions;
 using Small.Net.Extensions;
 
@@ -12,117 +11,85 @@ namespace Small.Net.Test.Resources
     public class SampleExpressionConverter : ExpressionConverter<int>
     {
         private const string PaddingChar = "\t";
-        private int _depth = -1; // avoid first node
-        private int padCount = 0;
+        private int _padCount = 0;
 
-        public override void Add(ExpressionLambda lambda)
+
+        public override LambdaNode<int> BeginLambda()
         {
-            _depth++;
+            Console.WriteLine($"{PaddingChar.Repeat(_padCount++)} Begin Lambda");
+            return new SampleLambdaNode();
+        }
+
+        public override void EndLambda(LambdaNode<int> lambda)
+        {
             Console.WriteLine(
-                $"{PaddingChar.Repeat(padCount++)}Lambda Expression with {lambda.ParameterCount:D} parameters and returning {lambda.ReturnType}");
+                $"{PaddingChar.Repeat(--_padCount)} End Lambda with {lambda.Parameters.Length} parameters");
         }
 
-        public override void Add(ExpressionParameter parameter)
+        public override ParameterNode<int> BeginParameter()
         {
-            _depth++;
+            return new SampleParameterNode();
+        }
+
+        public override void EndParameter(ParameterNode<int> parameter)
+        {
             Console.WriteLine(
-                $"{PaddingChar.Repeat(padCount)}Parameter named {parameter.Name} of {parameter.Type}, byRef: {parameter.IsByRef}");
+                $"{PaddingChar.Repeat(_padCount)} Parameter named {parameter.Name} of {parameter.Type}, Is By Ref: {parameter.IsByRef}");
         }
 
-        public override void Add(ExpressionConstant constant)
+        public override ConstantNode<int> BeginConstant()
         {
-            _depth++;
-            Console.WriteLine($"{PaddingChar.Repeat(padCount)}Constant type {constant.Type}, value: {constant.Value}");
+            return new SampleConstantNode();
         }
 
-        public override void Add(ExpressionUnary unary)
+        public override void EndConstant(ConstantNode<int> constant)
         {
-            _depth++;
-            Console.WriteLine($"{PaddingChar.Repeat(padCount)}Unary {unary.UnaryType} of {unary.Type}");
+            Console.WriteLine($"{PaddingChar.Repeat(_padCount)} Constant {constant.Value} of {constant.Type}");
         }
 
-        public override void Add(ExpressionMethodCall methodCall)
+        public override UnaryNode<int> BeginUnary(ExpressionType unaryType)
         {
-            _depth++;
+            Console.WriteLine($"{PaddingChar.Repeat(_padCount++)} Begin Unary {unaryType}");
+            return new SampleUnaryNode();
+        }
+
+        public override void EndUnary(UnaryNode<int> unary)
+        {
+            Console.WriteLine($"{PaddingChar.Repeat(--_padCount)} Unary ");
+        }
+
+        public override MethodCallNode<int> BeginMethodCall()
+        {
+            Console.WriteLine($"{PaddingChar.Repeat(_padCount++)} Begin Method Call");
+            return new SampleMethodCallNode();
+        }
+
+        public override void EndMethodCall(MethodCallNode<int> methodCall)
+        {
             Console.WriteLine(
-                $"{PaddingChar.Repeat(padCount++)}{(methodCall.IsStatic ? "Static" : "Instance")} call of {methodCall.Method.DeclaringType}.{methodCall.Method.Name}");
+                $"{PaddingChar.Repeat(--_padCount)} End Method Call {methodCall.Method.Name} (Static {methodCall.IsStatic}, {methodCall.Arguments.Length} Arguments)");
         }
 
-        public override void BeginMethodArgument()
+        public override BinaryNode<int> BeginBinary(ExpressionType binaryType)
         {
-            Console.WriteLine($"{PaddingChar.Repeat(padCount++)}Method Arguments:");
+            Console.WriteLine($"{PaddingChar.Repeat(_padCount++)} Begin Binary {binaryType}");
+            return new SampleBinaryNode();
         }
 
-        public override void EndMethodArgument()
+        public override void EndBinary(BinaryNode<int> binary)
         {
-            Console.WriteLine($"{PaddingChar.Repeat(--padCount)}End Method Arguments");
+            Console.WriteLine($"{PaddingChar.Repeat(--_padCount)} End Binary");
         }
 
-        public override void Add(ExpressionBinary binary)
+        public override ConditionalNode<int> BeginConditional()
         {
-            _depth++;
-            Console.WriteLine($"{PaddingChar.Repeat(padCount)}Binary Operation {binary.BinaryType}");
+            Console.WriteLine($"{PaddingChar.Repeat(_padCount++)} Begin If");
+            return new SampleConditionalNode();
         }
 
-        public override void BeginLeftPart()
+        public override void EndConditional(ConditionalNode<int> condition)
         {
-            Console.WriteLine($"{PaddingChar.Repeat(padCount++)}Start Left Part");
-        }
-
-        public override void EndLeftPart()
-        {
-            Console.WriteLine($"{PaddingChar.Repeat(--padCount)}Finish Left Part");
-        }
-
-        public override void BeginRightPart()
-        {
-            Console.WriteLine($"{PaddingChar.Repeat(padCount++)}Start Right Part");
-        }
-
-        public override void EndRightPart()
-        {
-            Console.WriteLine($"{PaddingChar.Repeat(--padCount)}Finish Right Part");
-        }
-
-        public override void BeginConditional()
-        {
-            Console.WriteLine($"{PaddingChar.Repeat(padCount++)}If");
-        }
-
-        public override void EndConditional()
-        {
-            Console.WriteLine($"{PaddingChar.Repeat(--padCount)}End If");
-        }
-
-        public override void BeginTruePart()
-        {
-            Console.WriteLine($"{PaddingChar.Repeat(padCount++)}True:");
-        }
-
-        public override void EndTruePart()
-        {
-            Console.WriteLine($"{PaddingChar.Repeat(--padCount)}End True");
-        }
-
-        public override void BeginFalsePart()
-        {
-            Console.WriteLine($"{PaddingChar.Repeat(padCount++)}False:");
-        }
-
-        public override void EndFalsePart()
-        {
-            Console.WriteLine($"{PaddingChar.Repeat(--padCount)}End False");
-        }
-
-        protected override void Initialize()
-        {
-            _depth = -1;
-            padCount = 0;
-        }
-
-        protected override int FinishConversion()
-        {
-            return _depth;
+            Console.WriteLine($"{PaddingChar.Repeat(--_padCount)} End If");
         }
     }
 }

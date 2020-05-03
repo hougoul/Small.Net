@@ -1,27 +1,33 @@
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Small.Net.Expressions.Visitor
 {
-    internal class LambdaVisitor : ExpressionVisitor<LambdaExpression>
+    internal class LambdaVisitor<TNodeOutput> : ExpressionVisitor<LambdaExpression, TNodeOutput>
     {
-        public LambdaVisitor(LambdaExpression node) : base(node)
+        public LambdaVisitor(LambdaExpression expression) : base(expression)
         {
         }
 
-        public override void Visit(IExpressionConverter converter)
+        public override void Visit(IExpressionConverter<TNodeOutput> converter)
         {
-            var lambda = new ExpressionLambda()
-                {Name = Node.Name, ReturnType = Node.ReturnType, ParameterCount = Node.Parameters.Count};
-            converter.Add(lambda);
-            IExpressionVisitor visitor;
-            foreach (var parameter in Node.Parameters)
-            {
-                visitor = parameter.CreateFromExpression();
-                visitor.Visit(converter);
-            }
+            var lambda = Initialise(converter.BeginLambda());
 
-            visitor = Node.Body.CreateFromExpression();
+            lambda.Name = Expression.Name;
+            lambda.ReturnType = Expression.ReturnType;
+            IExpressionVisitor<TNodeOutput> visitor;
+            lambda.Parameters = Expression.Parameters.Select(p =>
+            {
+                visitor = p.CreateFromExpression<TNodeOutput>();
+                visitor.Visit(converter);
+                return visitor.Node;
+            }).ToArray();
+
+            visitor = Expression.Body.CreateFromExpression<TNodeOutput>();
             visitor.Visit(converter);
+            lambda.Body = visitor.Node;
+
+            converter.EndLambda(lambda);
         }
     }
 }

@@ -2,29 +2,25 @@ using System.Linq.Expressions;
 
 namespace Small.Net.Expressions.Visitor
 {
-    internal class BinaryVisitor : ExpressionVisitor<BinaryExpression>
+    internal class BinaryVisitor<TNodeOutput> : ExpressionVisitor<BinaryExpression, TNodeOutput>
     {
         public BinaryVisitor(BinaryExpression node) : base(node)
         {
         }
 
-        public override void Visit(IExpressionConverter converter)
+        public override void Visit(IExpressionConverter<TNodeOutput> converter)
         {
-            var binary = new ExpressionBinary()
-            {
-                BinaryType = NodeType
-            };
-            converter.Add(binary);
+            var binary = Initialise(converter.BeginBinary(NodeType));
 
-            var visitor = Node.Left.CreateFromExpression();
-            converter.BeginLeftPart();
+            var visitor = Expression.Left.CreateFromExpression<TNodeOutput>();
             visitor.Visit(converter);
-            converter.EndLeftPart();
+            binary.Left = visitor.Node;
 
-            visitor = Node.Right.CreateFromExpression();
-            converter.BeginRightPart();
+            visitor = Expression.Right.CreateFromExpression<TNodeOutput>();
             visitor.Visit(converter);
-            converter.EndRightPart();
+            binary.Right = visitor.Node;
+
+            converter.EndBinary(binary);
         }
     }
 }

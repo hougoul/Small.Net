@@ -1,33 +1,35 @@
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Small.Net.Expressions.Visitor
 {
-    internal class MethodCallVisitor : ExpressionVisitor<MethodCallExpression>
+    internal class MethodCallVisitor<TNodeOutput> : ExpressionVisitor<MethodCallExpression, TNodeOutput>
     {
         public MethodCallVisitor(MethodCallExpression node) : base(node)
         {
         }
 
-        public override void Visit(IExpressionConverter converter)
+        public override void Visit(IExpressionConverter<TNodeOutput> converter)
         {
-            var methodCall = new ExpressionMethodCall()
-                {Method = Node.Method, IsStatic = Node.Object == null, ArgumentsCount = Node.Arguments.Count};
-            converter.Add(methodCall);
-            IExpressionVisitor visitor;
+            var methodCall = Initialise(converter.BeginMethodCall());
+            methodCall.IsStatic = Expression.Object == null;
+            methodCall.Method = Expression.Method;
+            IExpressionVisitor<TNodeOutput> visitor;
             if (!methodCall.IsStatic)
             {
-                visitor = Node.Object.CreateFromExpression();
+                visitor = Expression.Object.CreateFromExpression<TNodeOutput>();
                 visitor.Visit(converter);
+                methodCall.Object = visitor.Node;
             }
 
-            converter.BeginMethodArgument();
-            foreach (var argument in Node.Arguments)
+            methodCall.Arguments = Expression.Arguments.Select(a =>
             {
-                visitor = argument.CreateFromExpression();
+                visitor = a.CreateFromExpression<TNodeOutput>();
                 visitor.Visit(converter);
-            }
+                return visitor.Node;
+            }).ToArray();
 
-            converter.EndMethodArgument();
+            converter.EndMethodCall(methodCall);
         }
     }
 }

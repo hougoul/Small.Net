@@ -11,32 +11,24 @@ namespace Small.Net.Expressions
     {
         public T Convert(Expression expression)
         {
-            Initialize();
-            var visitor = expression.CreateFromExpression();
+            var visitor = expression.CreateFromExpression<T>();
             visitor.Visit(this);
-            return FinishConversion();
+            return visitor.Node.Compute();
         }
 
-        public abstract void Add(ExpressionLambda lambda);
-        public abstract void Add(ExpressionParameter parameter);
-        public abstract void Add(ExpressionConstant constant);
-        public abstract void Add(ExpressionUnary unary);
-        public abstract void Add(ExpressionMethodCall methodCall);
-        public abstract void BeginMethodArgument();
-        public abstract void EndMethodArgument();
-        public abstract void Add(ExpressionBinary binary);
-        public abstract void BeginLeftPart();
-        public abstract void EndLeftPart();
-        public abstract void BeginRightPart();
-        public abstract void EndRightPart();
-        public abstract void BeginConditional();
-        public abstract void EndConditional();
-        public abstract void BeginTruePart();
-        public abstract void EndTruePart();
-        public abstract void BeginFalsePart();
-        public abstract void EndFalsePart();
-
-        protected abstract void Initialize();
-        protected abstract T FinishConversion();
+        public abstract LambdaNode<T> BeginLambda();
+        public abstract void EndLambda(LambdaNode<T> lambda);
+        public abstract ParameterNode<T> BeginParameter();
+        public abstract void EndParameter(ParameterNode<T> parameter);
+        public abstract ConstantNode<T> BeginConstant();
+        public abstract void EndConstant(ConstantNode<T> constant);
+        public abstract UnaryNode<T> BeginUnary(ExpressionType unaryType);
+        public abstract void EndUnary(UnaryNode<T> unary);
+        public abstract MethodCallNode<T> BeginMethodCall();
+        public abstract void EndMethodCall(MethodCallNode<T> methodCall);
+        public abstract BinaryNode<T> BeginBinary(ExpressionType binaryType);
+        public abstract void EndBinary(BinaryNode<T> binary);
+        public abstract ConditionalNode<T> BeginConditional();
+        public abstract void EndConditional(ConditionalNode<T> condition);
     }
 }

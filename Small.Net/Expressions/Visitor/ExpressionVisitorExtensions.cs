@@ -5,7 +5,7 @@ namespace Small.Net.Expressions.Visitor
 {
     internal static class ExpressionVisitorExtensions
     {
-        public static IExpressionVisitor CreateFromExpression(this Expression node)
+        public static IExpressionVisitor<TNodeOutput> CreateFromExpression<TNodeOutput>(this Expression node)
         {
             switch (node.NodeType)
             {
@@ -32,10 +32,10 @@ namespace Small.Net.Expressions.Visitor
                 case ExpressionType.LessThan:
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.Coalesce:
-                    return new BinaryVisitor((BinaryExpression) node);
+                    return new BinaryVisitor<TNodeOutput>((BinaryExpression) node);
                 case ExpressionType.ArrayIndex:
-                    if (node is BinaryExpression binNode) return new BinaryVisitor(binNode);
-                    return new MethodCallVisitor((MethodCallExpression) node);
+                    if (node is BinaryExpression binNode) return new BinaryVisitor<TNodeOutput>(binNode);
+                    return new MethodCallVisitor<TNodeOutput>((MethodCallExpression) node);
                 case ExpressionType.AddAssign:
                     break;
                 case ExpressionType.AddAssignChecked:
@@ -51,17 +51,17 @@ namespace Small.Net.Expressions.Visitor
                 case ExpressionType.Quote:
                 case ExpressionType.TypeAs:
                 case ExpressionType.UnaryPlus:
-                    return new UnaryVisitor((UnaryExpression) node);
+                    return new UnaryVisitor<TNodeOutput>((UnaryExpression) node);
                 case ExpressionType.Assign:
                     break;
                 case ExpressionType.Block:
                     break;
                 case ExpressionType.Call:
-                    return new MethodCallVisitor((MethodCallExpression) node);
+                    return new MethodCallVisitor<TNodeOutput>((MethodCallExpression) node);
                 case ExpressionType.Conditional:
-                    return new ConditionalVisitor((ConditionalExpression) node);
+                    return new ConditionalVisitor<TNodeOutput>((ConditionalExpression) node);
                 case ExpressionType.Constant:
-                    return new ConstantVisitor((ConstantExpression) node);
+                    return new ConstantVisitor<TNodeOutput>((ConstantExpression) node);
                 case ExpressionType.DebugInfo:
                     break;
                 case ExpressionType.Decrement:
@@ -91,7 +91,7 @@ namespace Small.Net.Expressions.Visitor
                 case ExpressionType.Label:
                     break;
                 case ExpressionType.Lambda:
-                    return new LambdaVisitor((LambdaExpression) node);
+                    return new LambdaVisitor<TNodeOutput>((LambdaExpression) node);
                 case ExpressionType.LeftShiftAssign:
                     break;
                 case ExpressionType.ListInit:
@@ -119,7 +119,7 @@ namespace Small.Net.Expressions.Visitor
                 case ExpressionType.OrAssign:
                     break;
                 case ExpressionType.Parameter:
-                    return new ParameterVisitor((ParameterExpression) node);
+                    return new ParameterVisitor<TNodeOutput>((ParameterExpression) node);
                 case ExpressionType.PostDecrementAssign:
                     break;
                 case ExpressionType.PostIncrementAssign:

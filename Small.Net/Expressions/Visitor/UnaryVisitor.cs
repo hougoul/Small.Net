@@ -2,20 +2,22 @@ using System.Linq.Expressions;
 
 namespace Small.Net.Expressions.Visitor
 {
-    internal class UnaryVisitor : ExpressionVisitor<UnaryExpression>
+    internal class UnaryVisitor<TNodeOutput> : ExpressionVisitor<UnaryExpression, TNodeOutput>
     {
         public UnaryVisitor(UnaryExpression node) : base(node)
         {
         }
 
-        public override void Visit(IExpressionConverter converter)
+        public override void Visit(IExpressionConverter<TNodeOutput> converter)
         {
-            var unary = new ExpressionUnary() {Type = Node.Type, UnaryType = NodeType};
-            converter.Add(unary);
-            var visitor = Node.Operand.CreateFromExpression();
-            converter.BeginRightPart();
+            var unary = Initialise(converter.BeginUnary(NodeType));
+            unary.Type = Expression.Type;
+
+            var visitor = Expression.Operand.CreateFromExpression<TNodeOutput>();
             visitor.Visit(converter);
-            converter.EndRightPart();
+            unary.Operand = visitor.Node;
+
+            converter.EndUnary(unary);
         }
     }
 }

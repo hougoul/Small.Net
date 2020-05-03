@@ -2,16 +2,18 @@ using System.Linq.Expressions;
 
 namespace Small.Net.Expressions.Visitor
 {
-    internal class ConstantVisitor : ExpressionVisitor<ConstantExpression>
+    internal class ConstantVisitor<TNodeOutput> : ExpressionVisitor<ConstantExpression, TNodeOutput>
     {
-        public ConstantVisitor(ConstantExpression node) : base(node)
+        public ConstantVisitor(ConstantExpression expression) : base(expression)
         {
         }
 
-        public override void Visit(IExpressionConverter converter)
+        public override void Visit(IExpressionConverter<TNodeOutput> converter)
         {
-            var constant = new ExpressionConstant {Type = Node.Type, Value = Node.Value};
-            converter.Add(constant);
+            var constant = Initialise(converter.BeginConstant());
+            constant.Type = Expression.Type;
+            constant.Value = Expression.Value;
+            converter.EndConstant(constant);
         }
     }
 }

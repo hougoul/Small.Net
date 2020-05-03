@@ -20,7 +20,7 @@ namespace Small.Net.Test
         {
             var converter = new SampleExpressionConverter();
             var depth = converter.Convert(Sum1);
-            Assert.AreEqual(8, depth);
+            Assert.AreEqual(9, depth);
         }
 
         [Test]
@@ -28,7 +28,7 @@ namespace Small.Net.Test
         {
             var converter = new SampleExpressionConverter();
             var depth = converter.Convert(Sum2);
-            Assert.AreEqual(9, depth);
+            Assert.AreEqual(10, depth);
         }
 
         [Test]

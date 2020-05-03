@@ -1,7 +1,8 @@
 namespace Small.Net.Expressions.Visitor
 {
-    internal interface IExpressionVisitor
+    internal interface IExpressionVisitor<TNodeOutput>
     {
-        void Visit(IExpressionConverter converter);
+        void Visit(IExpressionConverter<TNodeOutput> converter);
+        ExpressionNode<TNodeOutput> Node { get; }
     }
 }

@@ -2,38 +2,27 @@ using System.Linq.Expressions;
 
 namespace Small.Net.Expressions
 {
-    public interface IExpressionConverter
+    public interface IExpressionConverter<TOutput>
     {
-        void Add(ExpressionLambda lambda);
-        void Add(ExpressionParameter parameter);
+        LambdaNode<TOutput> BeginLambda();
+        void EndLambda(LambdaNode<TOutput> lambda);
+        ParameterNode<TOutput> BeginParameter();
+        void EndParameter(ParameterNode<TOutput> parameter);
+        ConstantNode<TOutput> BeginConstant();
+        void EndConstant(ConstantNode<TOutput> constant);
+        UnaryNode<TOutput> BeginUnary(ExpressionType unaryType);
+        void EndUnary(UnaryNode<TOutput> unary);
 
-        void Add(ExpressionConstant constant);
+        MethodCallNode<TOutput> BeginMethodCall();
 
-        void Add(ExpressionUnary unary);
+        void EndMethodCall(MethodCallNode<TOutput> methodCall);
 
-        /* Method Call */
-        void Add(ExpressionMethodCall methodCall);
-        void BeginMethodArgument();
-        void EndMethodArgument();
+        BinaryNode<TOutput> BeginBinary(ExpressionType binaryType);
 
-        /* Binary section */
-        void Add(ExpressionBinary binary);
-        void BeginLeftPart();
-        void EndLeftPart();
-        void BeginRightPart();
-        void EndRightPart();
+        void EndBinary(BinaryNode<TOutput> binary);
 
-        /*Conditional Section*/
-        void BeginConditional();
-        void EndConditional();
-        void BeginTruePart();
-        void EndTruePart();
-        void BeginFalsePart();
-        void EndFalsePart();
-    }
-
-    public interface IExpressionConverter<out TOutput> : IExpressionConverter
-    {
+        ConditionalNode<TOutput> BeginConditional();
+        void EndConditional(ConditionalNode<TOutput> condition);
         TOutput Convert(Expression expression);
     }
 }

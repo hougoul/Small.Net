@@ -2,16 +2,19 @@ using System.Linq.Expressions;
 
 namespace Small.Net.Expressions.Visitor
 {
-    internal class ParameterVisitor : ExpressionVisitor<ParameterExpression>
+    internal class ParameterVisitor<TNodeOutput> : ExpressionVisitor<ParameterExpression, TNodeOutput>
     {
         public ParameterVisitor(ParameterExpression node) : base(node)
         {
         }
 
-        public override void Visit(IExpressionConverter converter)
+        public override void Visit(IExpressionConverter<TNodeOutput> converter)
         {
-            var param = new ExpressionParameter {Name = Node.Name, Type = Node.Type, IsByRef = Node.IsByRef};
-            converter.Add(param);
+            var param = Initialise(converter.BeginParameter());
+            param.Name = Expression.Name;
+            param.Type = Expression.Type;
+            param.IsByRef = Expression.IsByRef;
+            converter.EndParameter(param);
         }
     }
 }
