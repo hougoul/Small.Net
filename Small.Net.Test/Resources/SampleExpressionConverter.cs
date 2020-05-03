@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using Small.Net.Expressions;
+using Small.Net.Expressions.Converter;
 using Small.Net.Extensions;
 
 namespace Small.Net.Test.Resources

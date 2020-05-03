@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Small.Net.Expressions.Visitor;
 
-namespace Small.Net.Expressions
+namespace Small.Net.Expressions.Converter
 {
     /// <summary>
     /// Base class to implement for expression converter

@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace Small.Net.Expressions
+namespace Small.Net.Expressions.Converter
 {
     public interface IExpressionConverter<TOutput>
     {

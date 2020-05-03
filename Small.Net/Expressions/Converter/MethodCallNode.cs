@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Small.Net.Expressions
+namespace Small.Net.Expressions.Converter
 {
     public abstract class MethodCallNode<T> : ExpressionNode<T>
     {

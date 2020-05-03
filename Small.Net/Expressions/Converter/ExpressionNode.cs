@@ -1,7 +1,6 @@
-using System;
 using System.Linq.Expressions;
 
-namespace Small.Net.Expressions
+namespace Small.Net.Expressions.Converter
 {
     public abstract class ExpressionNode<T>
     {

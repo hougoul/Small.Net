@@ -1,6 +1,6 @@
 using System;
 
-namespace Small.Net.Expressions
+namespace Small.Net.Expressions.Converter
 {
     public abstract class ConstantNode<T> : ExpressionNode<T>
     {

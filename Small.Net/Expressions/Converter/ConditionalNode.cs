@@ -1,6 +1,4 @@
-using System.Linq.Expressions;
-
-namespace Small.Net.Expressions
+namespace Small.Net.Expressions.Converter
 {
     public abstract class ConditionalNode<T> : ExpressionNode<T>
     {
