@@ -35,7 +35,11 @@ namespace Small.Net.Message
 
         public void Dispose()
         {
-            if (_disposedValue) return;
+            if (_disposedValue)
+            {
+                return;
+            }
+
             foreach (var listener in _listeners)
             {
                 listener.Dispose();
