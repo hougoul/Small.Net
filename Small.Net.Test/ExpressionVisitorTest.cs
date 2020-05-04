@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
@@ -37,6 +38,20 @@ namespace Small.Net.Test
             var converter = new SampleExpressionConverter();
             var depth = converter.Convert(Factorial);
             Assert.AreEqual(15, depth);
+        }
+
+        [Test]
+        public void PerformanceTest()
+        {
+            var converter = new SampleExpressionConverter();
+            var watch = Stopwatch.StartNew();
+            for (var i = 0; i < 100000; i++)
+            {
+                var depth = converter.Convert(Factorial);
+            }
+
+            watch.Stop();
+            Console.WriteLine(watch.ElapsedMilliseconds);
         }
     }
 }

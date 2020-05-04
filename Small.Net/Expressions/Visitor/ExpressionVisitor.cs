@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Small.Net.Expressions.Converter;
 
 namespace Small.Net.Expressions.Visitor
