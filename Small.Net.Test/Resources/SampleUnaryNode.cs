@@ -1,13 +1,18 @@
-using Small.Net.Expressions;
+using System.Linq.Expressions;
 using Small.Net.Expressions.Converter;
+using Small.Net.Expressions.Visitor;
 
 namespace Small.Net.Test.Resources
 {
-    public class SampleUnaryNode : UnaryNode<int>
+    public class SampleUnaryVisitor : UnaryVisitor<int>
     {
-        public override int Compute()
+        public SampleUnaryVisitor(UnaryExpression node) : base(node)
         {
-            return 1 + Operand.Compute();
+        }
+
+        public override int Visit(IExpressionConverter<int> converter)
+        {
+            return 1 + Operand(converter);
         }
     }
 }

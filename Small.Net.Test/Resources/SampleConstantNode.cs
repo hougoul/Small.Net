@@ -1,11 +1,16 @@
-using Small.Net.Expressions;
+using System.Linq.Expressions;
 using Small.Net.Expressions.Converter;
+using Small.Net.Expressions.Visitor;
 
 namespace Small.Net.Test.Resources
 {
-    public class SampleConstantNode : ConstantNode<int>
+    public class SampleConstantVisitor : ConstantVisitor<int>
     {
-        public override int Compute()
+        public SampleConstantVisitor(ConstantExpression expression) : base(expression)
+        {
+        }
+
+        public override int Visit(IExpressionConverter<int> converter)
         {
             return 1;
         }

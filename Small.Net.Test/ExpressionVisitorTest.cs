@@ -37,7 +37,7 @@ namespace Small.Net.Test
         {
             var converter = new SampleExpressionConverter();
             var depth = converter.Convert(Factorial);
-            Assert.AreEqual(15, depth);
+            Assert.AreEqual(17, depth);
         }
 
         [Test]

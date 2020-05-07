@@ -5,7 +5,7 @@ using Small.Net.Expressions.Converter;
 
 namespace Small.Net.Expressions.Visitor
 {
-    internal abstract class ExpressionVisitor<TExpression, TNodeOutput> : IExpressionVisitor<TNodeOutput>
+    public abstract class ExpressionVisitor<TExpression, TNodeOutput> : IExpressionVisitor<TNodeOutput>
         where TExpression : Expression
     {
         protected ExpressionVisitor(TExpression expression)
@@ -16,15 +16,6 @@ namespace Small.Net.Expressions.Visitor
         protected ExpressionType NodeType => Expression.NodeType;
         protected TExpression Expression { get; }
 
-        public ExpressionNode<TNodeOutput> Node { get; protected set; }
-
-        public abstract void Visit(IExpressionConverter<TNodeOutput> converter);
-
-        protected T Initialise<T>(T node) where T : ExpressionNode<TNodeOutput>
-        {
-            node.Expression = Expression;
-            Node = node;
-            return node;
-        }
+        public abstract TNodeOutput Visit(IExpressionConverter<TNodeOutput> converter);
     }
 }

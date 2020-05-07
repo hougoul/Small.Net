@@ -1,28 +1,12 @@
 using System.Linq.Expressions;
+using Small.Net.Expressions.Visitor;
 
 namespace Small.Net.Expressions.Converter
 {
     public interface IExpressionConverter<TOutput>
     {
-        LambdaNode<TOutput> BeginLambda();
-        void EndLambda(LambdaNode<TOutput> lambda);
-        ParameterNode<TOutput> BeginParameter();
-        void EndParameter(ParameterNode<TOutput> parameter);
-        ConstantNode<TOutput> BeginConstant();
-        void EndConstant(ConstantNode<TOutput> constant);
-        UnaryNode<TOutput> BeginUnary(ExpressionType unaryType);
-        void EndUnary(UnaryNode<TOutput> unary);
-
-        MethodCallNode<TOutput> BeginMethodCall();
-
-        void EndMethodCall(MethodCallNode<TOutput> methodCall);
-
-        BinaryNode<TOutput> BeginBinary(ExpressionType binaryType);
-
-        void EndBinary(BinaryNode<TOutput> binary);
-
-        ConditionalNode<TOutput> BeginConditional();
-        void EndConditional(ConditionalNode<TOutput> condition);
+        TOutput DefaultValue { get; }
         TOutput Convert(Expression expression);
+        IExpressionVisitor<TOutput> CreateFromExpression(Expression expression);
     }
 }

@@ -4,15 +4,15 @@ using Small.Net.Expressions.Visitor;
 
 namespace Small.Net.Test.Resources
 {
-    public class SampleParameterVisitor : ParameterVisitor<int>
+    public class SampleConditionalVisitor : ConditionalVisitor<int>
     {
-        public SampleParameterVisitor(ParameterExpression node) : base(node)
+        public SampleConditionalVisitor(ConditionalExpression node) : base(node)
         {
         }
 
         public override int Visit(IExpressionConverter<int> converter)
         {
-            return 1;
+            return 1 + Test(converter) + True(converter) + False(converter);
         }
     }
 }

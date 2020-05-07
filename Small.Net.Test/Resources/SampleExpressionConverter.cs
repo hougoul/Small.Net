@@ -2,6 +2,7 @@ using System;
 using System.Linq.Expressions;
 using Small.Net.Expressions;
 using Small.Net.Expressions.Converter;
+using Small.Net.Expressions.Visitor;
 using Small.Net.Extensions;
 
 namespace Small.Net.Test.Resources
@@ -11,83 +12,39 @@ namespace Small.Net.Test.Resources
     /// </summary>
     public class SampleExpressionConverter : ExpressionConverter<int>
     {
-        private const string PaddingChar = "\t";
-        //  private int _padCount = 0;
-
-
-        public override LambdaNode<int> BeginLambda()
+        protected override BinaryVisitor<int> CreateBinaryVisitor(BinaryExpression node)
         {
-            //Console.WriteLine($"{PaddingChar.Repeat(_padCount++)} Begin Lambda");
-            return new SampleLambdaNode();
+            return new SampleBinaryVisitor(node);
         }
 
-        public override void EndLambda(LambdaNode<int> lambda)
+        protected override ConditionalVisitor<int> CreateConditionalVisitor(ConditionalExpression node)
         {
-            //Console.WriteLine($"{PaddingChar.Repeat(--_padCount)} End Lambda with {lambda.Parameters.Length} parameters");
+            return new SampleConditionalVisitor(node);
         }
 
-        public override ParameterNode<int> BeginParameter()
+        protected override ConstantVisitor<int> CreateConstantVisitor(ConstantExpression node)
         {
-            return new SampleParameterNode();
+            return new SampleConstantVisitor(node);
         }
 
-        public override void EndParameter(ParameterNode<int> parameter)
+        protected override LambdaVisitor<int> CreateLambdaVisitor(LambdaExpression node)
         {
-            //Console.WriteLine($"{PaddingChar.Repeat(_padCount)} Parameter named {parameter.Name} of {parameter.Type}, Is By Ref: {parameter.IsByRef}");
+            return new SampleLambdaVisitor(node);
         }
 
-        public override ConstantNode<int> BeginConstant()
+        protected override MethodCallVisitor<int> CreateMethodCallVisitor(MethodCallExpression node)
         {
-            return new SampleConstantNode();
+            return new SampleMethodCallVisitor(node);
         }
 
-        public override void EndConstant(ConstantNode<int> constant)
+        protected override ParameterVisitor<int> CreateParameterVisitor(ParameterExpression node)
         {
-            //Console.WriteLine($"{PaddingChar.Repeat(_padCount)} Constant {constant.Value} of {constant.Type}");
+            return new SampleParameterVisitor(node);
         }
 
-        public override UnaryNode<int> BeginUnary(ExpressionType unaryType)
+        protected override UnaryVisitor<int> CreateUnaryVisitor(UnaryExpression node)
         {
-            //Console.WriteLine($"{PaddingChar.Repeat(_padCount++)} Begin Unary {unaryType}");
-            return new SampleUnaryNode();
-        }
-
-        public override void EndUnary(UnaryNode<int> unary)
-        {
-            //Console.WriteLine($"{PaddingChar.Repeat(--_padCount)} Unary ");
-        }
-
-        public override MethodCallNode<int> BeginMethodCall()
-        {
-            //Console.WriteLine($"{PaddingChar.Repeat(_padCount++)} Begin Method Call");
-            return new SampleMethodCallNode();
-        }
-
-        public override void EndMethodCall(MethodCallNode<int> methodCall)
-        {
-            //Console.WriteLine($"{PaddingChar.Repeat(--_padCount)} End Method Call {methodCall.Method.Name} (Static {methodCall.IsStatic}, {methodCall.Arguments.Length} Arguments)");
-        }
-
-        public override BinaryNode<int> BeginBinary(ExpressionType binaryType)
-        {
-            //Console.WriteLine($"{PaddingChar.Repeat(_padCount++)} Begin Binary {binaryType}");
-            return new SampleBinaryNode();
-        }
-
-        public override void EndBinary(BinaryNode<int> binary)
-        {
-            //Console.WriteLine($"{PaddingChar.Repeat(--_padCount)} End Binary");
-        }
-
-        public override ConditionalNode<int> BeginConditional()
-        {
-            //Console.WriteLine($"{PaddingChar.Repeat(_padCount++)} Begin If");
-            return new SampleConditionalNode();
-        }
-
-        public override void EndConditional(ConditionalNode<int> condition)
-        {
-            //Console.WriteLine($"{PaddingChar.Repeat(--_padCount)} End If");
+            return new SampleUnaryVisitor(node);
         }
     }
 }

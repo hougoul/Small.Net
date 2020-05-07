@@ -1,14 +1,19 @@
 using System.Linq;
-using Small.Net.Expressions;
+using System.Linq.Expressions;
 using Small.Net.Expressions.Converter;
+using Small.Net.Expressions.Visitor;
 
 namespace Small.Net.Test.Resources
 {
-    public class SampleLambdaNode : LambdaNode<int>
+    public class SampleLambdaVisitor : LambdaVisitor<int>
     {
-        public override int Compute()
+        public SampleLambdaVisitor(LambdaExpression expression) : base(expression)
         {
-            return 1 + Parameters.Sum(p => p.Compute()) + Body.Compute();
+        }
+
+        public override int Visit(IExpressionConverter<int> converter)
+        {
+            return 1 + Parameters(converter).Sum() + Body(converter);
         }
     }
 }

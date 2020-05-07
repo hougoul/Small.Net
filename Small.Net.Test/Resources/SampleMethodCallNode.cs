@@ -1,14 +1,19 @@
 using System.Linq;
-using Small.Net.Expressions;
+using System.Linq.Expressions;
 using Small.Net.Expressions.Converter;
+using Small.Net.Expressions.Visitor;
 
 namespace Small.Net.Test.Resources
 {
-    public class SampleMethodCallNode : MethodCallNode<int>
+    public class SampleMethodCallVisitor : MethodCallVisitor<int>
     {
-        public override int Compute()
+        public SampleMethodCallVisitor(MethodCallExpression node) : base(node)
         {
-            return 1 + Object?.Compute() ?? 0 + Arguments.Sum(s => s.Compute());
+        }
+
+        public override int Visit(IExpressionConverter<int> converter)
+        {
+            return 1 + Object(converter) + Arguments(converter).Sum();
         }
     }
 }

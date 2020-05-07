@@ -3,25 +3,20 @@ using Small.Net.Expressions.Converter;
 
 namespace Small.Net.Expressions.Visitor
 {
-    internal class BinaryVisitor<TNodeOutput> : ExpressionVisitor<BinaryExpression, TNodeOutput>
+    public abstract class BinaryVisitor<TNodeOutput> : ExpressionVisitor<BinaryExpression, TNodeOutput>
     {
-        public BinaryVisitor(BinaryExpression node) : base(node)
+        protected BinaryVisitor(BinaryExpression node) : base(node)
         {
         }
 
-        public override void Visit(IExpressionConverter<TNodeOutput> converter)
+        protected TNodeOutput Left(IExpressionConverter<TNodeOutput> converter)
         {
-            var binary = Initialise(converter.BeginBinary(NodeType));
+            return converter.CreateFromExpression(Expression.Left).Visit(converter);
+        }
 
-            var visitor = Expression.Left.CreateFromExpression<TNodeOutput>();
-            visitor.Visit(converter);
-            binary.Left = visitor.Node;
-
-            visitor = Expression.Right.CreateFromExpression<TNodeOutput>();
-            visitor.Visit(converter);
-            binary.Right = visitor.Node;
-
-            converter.EndBinary(binary);
+        protected TNodeOutput Right(IExpressionConverter<TNodeOutput> converter)
+        {
+            return converter.CreateFromExpression(Expression.Right).Visit(converter);
         }
     }
 }

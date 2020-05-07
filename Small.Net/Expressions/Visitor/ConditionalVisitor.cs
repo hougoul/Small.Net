@@ -3,29 +3,25 @@ using Small.Net.Expressions.Converter;
 
 namespace Small.Net.Expressions.Visitor
 {
-    internal class ConditionalVisitor<TNodeOutput> : ExpressionVisitor<ConditionalExpression, TNodeOutput>
+    public abstract class ConditionalVisitor<TNodeOutput> : ExpressionVisitor<ConditionalExpression, TNodeOutput>
     {
-        public ConditionalVisitor(ConditionalExpression node) : base(node)
+        protected ConditionalVisitor(ConditionalExpression node) : base(node)
         {
         }
 
-        public override void Visit(IExpressionConverter<TNodeOutput> converter)
+        protected TNodeOutput Test(IExpressionConverter<TNodeOutput> converter)
         {
-            var condition = Initialise(converter.BeginConditional());
+            return converter.CreateFromExpression(Expression.Test).Visit(converter);
+        }
 
-            var visitor = Expression.Test.CreateFromExpression<TNodeOutput>();
-            visitor.Visit(converter);
-            condition.Test = visitor.Node;
+        protected TNodeOutput True(IExpressionConverter<TNodeOutput> converter)
+        {
+            return converter.CreateFromExpression(Expression.IfTrue).Visit(converter);
+        }
 
-            visitor = Expression.IfTrue.CreateFromExpression<TNodeOutput>();
-            visitor.Visit(converter);
-            condition.True = visitor.Node;
-
-            visitor = Expression.IfFalse.CreateFromExpression<TNodeOutput>();
-            visitor.Visit(converter);
-            condition.False = visitor.Node;
-
-            converter.EndConditional(condition);
+        protected TNodeOutput False(IExpressionConverter<TNodeOutput> converter)
+        {
+            return converter.CreateFromExpression(Expression.IfFalse).Visit(converter);
         }
     }
 }
