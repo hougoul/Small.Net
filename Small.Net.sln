@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Small.Net", "Small.Net\Smal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Small.Net.Test", "Small.Net.Test\Small.Net.Test.csproj", "{B5018ECC-4D13-45B6-9E03-BDF8C73E95E7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorldEditor", "WorldEditor\WorldEditor.csproj", "{F527A55E-0D19-4D9F-B1A5-9EB325CFA8EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B5018ECC-4D13-45B6-9E03-BDF8C73E95E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5018ECC-4D13-45B6-9E03-BDF8C73E95E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5018ECC-4D13-45B6-9E03-BDF8C73E95E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F527A55E-0D19-4D9F-B1A5-9EB325CFA8EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F527A55E-0D19-4D9F-B1A5-9EB325CFA8EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F527A55E-0D19-4D9F-B1A5-9EB325CFA8EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F527A55E-0D19-4D9F-B1A5-9EB325CFA8EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
