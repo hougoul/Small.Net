@@ -128,29 +128,6 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Core\ComObject.cs" />
-    <Compile Include="Core\ComObjectShadow.cs" />
-    <Compile Include="Core\Configuration.cs" />
-    <Compile Include="Core\CoreException.cs" />
-    <Compile Include="Core\CppObject.cs" />
-    <Compile Include="Core\CppObjectShadow.cs" />
-    <Compile Include="Core\CppObjectVtbl.cs" />
-    <Compile Include="Core\Diagnostics\ComObjectEventArgs.cs" />
-    <Compile Include="Core\Diagnostics\EqualityComparer.cs" />
-    <Compile Include="Core\Diagnostics\ObjectReference.cs" />
-    <Compile Include="Core\Diagnostics\ObjectTracker.cs" />
-    <Compile Include="Core\Disposable.cs" />
-    <Compile Include="Core\DisposeEventArgs.cs" />
-    <Compile Include="Core\ICallbackable.cs" />
-    <Compile Include="Core\IInspectable.cs" />
-    <Compile Include="Core\InspectableShadow.cs" />
-    <Compile Include="Core\Interop.cs" />
-    <Compile Include="Core\IUnknown.cs" />
-    <Compile Include="Core\Result.cs" />
-    <Compile Include="Core\ResultDescriptor.cs" />
-    <Compile Include="Core\ShadowAttribute.cs" />
-    <Compile Include="Core\ShadowContainer.cs" />
-    <Compile Include="Core\Utilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="Views\HomeView.xaml.cs">
