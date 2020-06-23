@@ -1,23 +1,12 @@
 ﻿using Small.Net.Graphic.Core;
-using System;
 using TerraFX.Interop;
 
 namespace Small.Net.Graphic.Graphic
 {
-    public unsafe class Dx12Factory : IFactory
+    public unsafe class Dx12Factory : Dx12Object<IDXGIFactory4>, IFactory
     {
-        private bool disposedValue;
-        private IDXGIFactory4* _factory;
-
-        private Dx12Factory(IDXGIFactory4* factory)
+        private Dx12Factory(IDXGIFactory4* factory) : base(factory)
         {
-            _factory = factory;
-        }
-
-        ~Dx12Factory()
-        {
-            // Ne changez pas ce code. Placez le code de nettoyage dans la méthode 'Dispose(bool disposing)'
-            Dispose(disposing: false);
         }
 
         public static Dx12Factory CreateFactoryDx12()
@@ -27,33 +16,19 @@ namespace Small.Net.Graphic.Graphic
             return new Dx12Factory(factoryOut);
         }
 
-        protected virtual void Dispose(bool disposing)
+        public ISwapChain CreateSwapChain1(SwapChainConfig config, IDevice device)
         {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    // supprimer l'état managé (objets managés)
-                }
-
-                // libérer les ressources non managées (objets non managés) et substituer le finaliseur
-                _factory->Release();
-                _factory = null;
-                // affecter aux grands champs une valeur null
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            // Ne changez pas ce code. Placez le code de nettoyage dans la méthode 'Dispose(bool disposing)'
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            IDXGISwapChain3* swapChain3;
+            var swapChain = DirectxHelper.CreateSwapChain(config, UnsafePtr.Ptr, ((Dx12Device)device).UnsafePtr.Ptr);
+            var iid = Windows.IID_IDXGISwapChain3;
+            Result result = swapChain->QueryInterface(&iid, (void**)&swapChain3);
+            result.CheckError();
+            return new Dx12SwapChain(swapChain3);
         }
 
         public IAdapter GetHardwareAdapter()
         {
-            var adapter = DirectxHelper.GetHardwareAdapter(_factory);
+            var adapter = DirectxHelper.GetHardwareAdapter(UnsafePtr.Ptr);
             return new Dx12Adapter(adapter);
         }
     }

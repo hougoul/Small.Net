@@ -20,6 +20,9 @@ namespace Small.Net.Graphic.Test
             Assert.IsNotNull(adapter);
             var device = adapter.CreateDevice();
             Assert.IsNotNull(device);
+            var commandQueue = device.CreateCommandQueue();
+            Assert.IsNotNull(commandQueue);
+            commandQueue.Dispose();
             device.Dispose();
             adapter.Dispose();
             factory.Dispose();
