@@ -1,22 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 using Caliburn.Micro;
 using WorldEditor.ViewModels;
 using WorldEditor.Views;
+using Small.Net.Utilities;
+using Windows.UI.Xaml;
 
 namespace WorldEditor
 {
@@ -35,6 +25,7 @@ namespace WorldEditor
             container = new WinRTContainer();
 
             container.RegisterWinRTServices();
+            container.RegisterPerRequest(typeof(IDisposableManager), "cleaner", typeof(CommonDisposableManager));
 
             container.PerRequest<HomeViewModel>();
         }
@@ -48,7 +39,6 @@ namespace WorldEditor
         {
             if (args.PreviousExecutionState == ApplicationExecutionState.Running)
                 return;
-
             DisplayRootView<HomeView>();
         }
 
@@ -65,6 +55,11 @@ namespace WorldEditor
         protected override void BuildUp(object instance)
         {
             container.BuildUp(instance);
+        }
+
+        protected override void OnUnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            Console.WriteLine(e.Message);
         }
     }
 }

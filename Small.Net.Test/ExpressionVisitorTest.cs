@@ -19,35 +19,35 @@ namespace Small.Net.Test
         [Test]
         public void Sum1Test()
         {
-            var converter = new SampleExpressionConverter();
-            var depth = converter.Convert(Sum1);
+            var converter = new SampleExpressionVisitor();
+            var depth = converter.Compute(Sum1).Result;
             Assert.AreEqual(9, depth);
         }
 
         [Test]
         public void Sum2Test()
         {
-            var converter = new SampleExpressionConverter();
-            var depth = converter.Convert(Sum2);
+            var converter = new SampleExpressionVisitor();
+            var depth = converter.Compute(Sum2).Result;
             Assert.AreEqual(10, depth);
         }
 
         [Test]
         public void FactorialTest()
         {
-            var converter = new SampleExpressionConverter();
-            var depth = converter.Convert(Factorial);
+            var converter = new SampleExpressionVisitor();
+            var depth = converter.Compute(Factorial).Result;
             Assert.AreEqual(17, depth);
         }
 
         [Test]
         public void PerformanceTest()
         {
-            var converter = new SampleExpressionConverter();
+            var converter = new SampleExpressionVisitor();
             var watch = Stopwatch.StartNew();
             for (var i = 0; i < 100000; i++)
             {
-                var depth = converter.Convert(Factorial);
+                var depth = converter.Compute(Factorial).Result;
             }
 
             watch.Stop();
