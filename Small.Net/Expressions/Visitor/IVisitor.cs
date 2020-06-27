@@ -5,6 +5,6 @@ namespace Small.Net.Expressions.Visitor
     {
         TNodeOutput Result { get; }
 
-        IVisitor<TTree, TNodeOutput> Compute(TTree expression);
+        IVisitor<TTree, TNodeOutput> Visit(TTree expression);
     }
 }

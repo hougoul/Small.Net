@@ -7,7 +7,7 @@ namespace Small.Net.Expressions.Visitor
     {
         public TNodeOutput Result { get; protected set; }
 
-        public IVisitor<Expression, TNodeOutput> Compute(Expression expression)
+        public IVisitor<Expression, TNodeOutput> Visit(Expression expression)
         {
             switch (expression.NodeType)
             {
@@ -49,11 +49,11 @@ namespace Small.Net.Expressions.Visitor
                 case ExpressionType.RightShiftAssign:
                 case ExpressionType.SubtractAssign:
                 case ExpressionType.SubtractAssignChecked:
-                    Visit((BinaryExpression)expression);
+                    Compute((BinaryExpression)expression);
                     break;
                 case ExpressionType.ArrayIndex:
-                    if (expression is BinaryExpression binNode) Visit(binNode);
-                    else Visit((MethodCallExpression)expression);
+                    if (expression is BinaryExpression binNode) Compute(binNode);
+                    else Compute((MethodCallExpression)expression);
                     break;
                 case ExpressionType.ArrayLength:
                 case ExpressionType.Convert:
@@ -75,18 +75,18 @@ namespace Small.Net.Expressions.Visitor
                 case ExpressionType.PreIncrementAssign:
                 case ExpressionType.Throw:
                 case ExpressionType.Unbox:
-                    Visit((UnaryExpression)expression);
+                    Compute((UnaryExpression)expression);
                     break;
                 case ExpressionType.Block:
                     break;
                 case ExpressionType.Call:
-                    Visit((MethodCallExpression)expression);
+                    Compute((MethodCallExpression)expression);
                     break;
                 case ExpressionType.Conditional:
-                    Visit((ConditionalExpression)expression);
+                    Compute((ConditionalExpression)expression);
                     break;
                 case ExpressionType.Constant:
-                    Visit((ConstantExpression)expression);
+                    Compute((ConstantExpression)expression);
                     break;
                 case ExpressionType.DebugInfo:
                     break;
@@ -105,7 +105,7 @@ namespace Small.Net.Expressions.Visitor
                 case ExpressionType.Label:
                     break;
                 case ExpressionType.Lambda:
-                    Visit((LambdaExpression)expression);
+                    Compute((LambdaExpression)expression);
                     break;
                 case ExpressionType.ListInit:
                     break;
@@ -122,7 +122,7 @@ namespace Small.Net.Expressions.Visitor
                 case ExpressionType.NewArrayInit:
                     break;
                 case ExpressionType.Parameter:
-                    Visit((ParameterExpression)expression);
+                    Compute((ParameterExpression)expression);
                     break;
                 case ExpressionType.RuntimeVariables:
                     break;
@@ -140,12 +140,12 @@ namespace Small.Net.Expressions.Visitor
             return this;
         }
 
-        protected abstract void Visit(BinaryExpression expression);
-        protected abstract void Visit(MethodCallExpression expression);
-        protected abstract void Visit(UnaryExpression expression);
-        protected abstract void Visit(LambdaExpression expression);
-        protected abstract void Visit(ParameterExpression expression);
-        protected abstract void Visit(ConditionalExpression expression);
-        protected abstract void Visit(ConstantExpression expression);
+        protected abstract void Compute(BinaryExpression expression);
+        protected abstract void Compute(MethodCallExpression expression);
+        protected abstract void Compute(UnaryExpression expression);
+        protected abstract void Compute(LambdaExpression expression);
+        protected abstract void Compute(ParameterExpression expression);
+        protected abstract void Compute(ConditionalExpression expression);
+        protected abstract void Compute(ConstantExpression expression);
     }
 }

@@ -20,7 +20,7 @@ namespace Small.Net.Test
         public void Sum1Test()
         {
             var converter = new SampleExpressionVisitor();
-            var depth = converter.Compute(Sum1).Result;
+            var depth = converter.Visit(Sum1).Result;
             Assert.AreEqual(9, depth);
         }
 
@@ -28,7 +28,7 @@ namespace Small.Net.Test
         public void Sum2Test()
         {
             var converter = new SampleExpressionVisitor();
-            var depth = converter.Compute(Sum2).Result;
+            var depth = converter.Visit(Sum2).Result;
             Assert.AreEqual(10, depth);
         }
 
@@ -36,7 +36,7 @@ namespace Small.Net.Test
         public void FactorialTest()
         {
             var converter = new SampleExpressionVisitor();
-            var depth = converter.Compute(Factorial).Result;
+            var depth = converter.Visit(Factorial).Result;
             Assert.AreEqual(17, depth);
         }
 
@@ -47,7 +47,7 @@ namespace Small.Net.Test
             var watch = Stopwatch.StartNew();
             for (var i = 0; i < 100000; i++)
             {
-                var depth = converter.Compute(Factorial).Result;
+                var depth = converter.Visit(Factorial).Result;
             }
 
             watch.Stop();

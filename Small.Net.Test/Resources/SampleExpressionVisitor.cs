@@ -14,47 +14,47 @@ namespace Small.Net.Test.Resources
         {
             Result = 0;
         }
-        protected override void Visit(BinaryExpression expression)
+        protected override void Compute(BinaryExpression expression)
         {
             Result++;
-            Compute(expression.Left);
-            Compute(expression.Right);
+            Visit(expression.Left);
+            Visit(expression.Right);
         }
 
-        protected override void Visit(MethodCallExpression expression)
+        protected override void Compute(MethodCallExpression expression)
         {
             Result++;
-            if (expression.Object != null) Compute(expression.Object);
-            expression.Arguments.ForEach(Compute);
+            if (expression.Object != null) Visit(expression.Object);
+            expression.Arguments.ForEach(a => Visit(a));
         }
 
-        protected override void Visit(UnaryExpression expression)
+        protected override void Compute(UnaryExpression expression)
         {
             Result++;
-            Compute(expression.Operand);
+            Visit(expression.Operand);
         }
 
-        protected override void Visit(LambdaExpression expression)
+        protected override void Compute(LambdaExpression expression)
         {
             Result++;
-            expression.Parameters.ForEach(Compute);
-            Compute(expression.Body);
+            expression.Parameters.ForEach(a => Visit(a));
+            Visit(expression.Body);
         }
 
-        protected override void Visit(ParameterExpression expression)
+        protected override void Compute(ParameterExpression expression)
         {
             Result++;
         }
 
-        protected override void Visit(ConditionalExpression expression)
+        protected override void Compute(ConditionalExpression expression)
         {
             Result++;
-            Compute(expression.Test);
-            Compute(expression.IfTrue);
-            Compute(expression.IfFalse);
+            Visit(expression.Test);
+            Visit(expression.IfTrue);
+            Visit(expression.IfFalse);
         }
 
-        protected override void Visit(ConstantExpression expression)
+        protected override void Compute(ConstantExpression expression)
         {
             Result++;
         }
