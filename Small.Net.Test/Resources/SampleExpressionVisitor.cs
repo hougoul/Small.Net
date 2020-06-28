@@ -1,7 +1,5 @@
-
 using Small.Net.Expressions.Visitor;
 using System.Linq.Expressions;
-using Small.Net.Extensions;
 
 namespace Small.Net.Test.Resources
 {
@@ -14,49 +12,47 @@ namespace Small.Net.Test.Resources
         {
             Result = 0;
         }
-        protected override void Compute(BinaryExpression expression)
+
+        protected override Expression VisitBinary(BinaryExpression node)
         {
             Result++;
-            Visit(expression.Left);
-            Visit(expression.Right);
+            return base.VisitBinary(node);
         }
 
-        protected override void Compute(MethodCallExpression expression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             Result++;
-            if (expression.Object != null) Visit(expression.Object);
-            expression.Arguments.ForEach(a => Visit(a));
+            return base.VisitMethodCall(node);
         }
 
-        protected override void Compute(UnaryExpression expression)
+        protected override Expression VisitUnary(UnaryExpression node)
         {
             Result++;
-            Visit(expression.Operand);
+            return base.VisitUnary(node);
         }
 
-        protected override void Compute(LambdaExpression expression)
+        protected override Expression VisitLambda<T>(Expression<T> node)
         {
             Result++;
-            expression.Parameters.ForEach(a => Visit(a));
-            Visit(expression.Body);
+            return base.VisitLambda(node);
         }
 
-        protected override void Compute(ParameterExpression expression)
+        protected override Expression VisitParameter(ParameterExpression node)
         {
             Result++;
+            return base.VisitParameter(node);
         }
 
-        protected override void Compute(ConditionalExpression expression)
+        protected override Expression VisitConditional(ConditionalExpression node)
         {
             Result++;
-            Visit(expression.Test);
-            Visit(expression.IfTrue);
-            Visit(expression.IfFalse);
+            return base.VisitConditional(node);
         }
 
-        protected override void Compute(ConstantExpression expression)
+        protected override Expression VisitConstant(ConstantExpression node)
         {
             Result++;
+            return base.VisitConstant(node);
         }
     }
 }
