@@ -6,7 +6,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <DefineConstants>DEBUG;TRACE</DefineConstants>
+      <DebugType>full</DebugType>
+      <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>

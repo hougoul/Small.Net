@@ -4,8 +4,12 @@ namespace Small.Net.Graphic.Core
 {
     public interface IWindowHandle
     {
+        int Width { get; }
+
+        int Height { get; }
+
         object Handle { get; }
 
-        internal void AssignTo(IDXGISwapChain4 swapChain);
+        public void AssignTo(IDXGISwapChain4 swapChain);
     }
 }

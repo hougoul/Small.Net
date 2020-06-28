@@ -14,13 +14,13 @@ namespace Small.Net.Graphic.D12.Core
         private readonly CommandListType _commandListType;
         private ID3D12Device5 _device;
         private ID3D12Fence _fence;
-        private EventWaitHandle _fenceEvent;
+        private readonly EventWaitHandle _fenceEvent;
         private long _fenceValue;
 
 
-        private bool disposedValue;
+        private bool _disposedValue;
 
-        public CommandQueueManager(ID3D12Device5 device, CommandListType commandListType)
+        internal CommandQueueManager(ID3D12Device5 device, CommandListType commandListType)
         {
             _fenceValue = 0;
             _commandListType = commandListType;
@@ -32,7 +32,7 @@ namespace Small.Net.Graphic.D12.Core
                 NodeMask = 0
             });
             _disposableManager.Add(CommandQueue);
-            _fence = device.CreateFence(0, FenceFlags.None);
+            _fence = device.CreateFence(0);
             _disposableManager.Add(_fence);
             _fenceEvent = new EventWaitHandle(false, EventResetMode.AutoReset);
             _disposableManager.Add(_fenceEvent);
@@ -46,7 +46,7 @@ namespace Small.Net.Graphic.D12.Core
 
         public ID3D12CommandQueue CommandQueue { get; private set; }
 
-        DX12CommandList<ID3D12GraphicsCommandList2> GetCommandList()
+        public DX12CommandList<ID3D12GraphicsCommandList2> GetCommandList()
         {
             ID3D12CommandAllocator allocator;
             if (_commandAllocatorQueue.Count != 0 && IsFenceComplete(_commandAllocatorQueue.Peek().FenceValue))
@@ -93,7 +93,7 @@ namespace Small.Net.Graphic.D12.Core
 
         public long Signal()
         {
-            long fenceValue = ++_fenceValue;
+            var fenceValue = ++_fenceValue;
             CommandQueue.Signal(_fence, fenceValue);
             return fenceValue;
         }
@@ -105,11 +105,13 @@ namespace Small.Net.Graphic.D12.Core
 
         public void WaitForFenceValue(long fenceValue)
         {
-            if(!IsFenceComplete(fenceValue))
+            if (IsFenceComplete(fenceValue))
             {
-                _fence.SetEventOnCompletion(fenceValue, _fenceEvent);
-                _fenceEvent.WaitOne();
+                return;
             }
+
+            _fence.SetEventOnCompletion(fenceValue, _fenceEvent);
+            _fenceEvent.WaitOne();
         }
 
         public void Flush()
@@ -119,21 +121,20 @@ namespace Small.Net.Graphic.D12.Core
 
         public void Dispose()
         {
-            // Ne changez pas ce code. Placez le code de nettoyage dans la méthode 'Dispose(bool disposing)'
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
-        protected ID3D12CommandAllocator CreateCommandAllocator()
+        private ID3D12CommandAllocator CreateCommandAllocator()
         {
             var allocator = _device.CreateCommandAllocator(_commandListType);
             _disposableManager.Add(allocator);
             return allocator;
         }
 
-        protected ID3D12GraphicsCommandList2 CreateCommandList(ID3D12CommandAllocator allocator)
+        private ID3D12GraphicsCommandList2 CreateCommandList(ID3D12CommandAllocator allocator)
         {
-            var cmdList =  _device.CreateCommandList(0, _commandListType, allocator);
+            var cmdList = _device.CreateCommandList(0, _commandListType, allocator);
             _disposableManager.Add(cmdList);
             var cmdList2 = cmdList.QueryInterface<ID3D12GraphicsCommandList2>();
             _disposableManager.Add(cmdList2);
@@ -142,25 +143,26 @@ namespace Small.Net.Graphic.D12.Core
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (_disposedValue)
             {
-                if (disposing)
-                {
-                    // supprimer l'état managé (objets managés)
-                }
-
-                // libérer les ressources non managées (objets non managés) et substituer le finaliseur
-                _commandListQueue.Clear();
-                _commandAllocatorQueue.Clear();
-                _disposableManager.ReverseDispose = true;
-                _disposableManager.Dispose();
-                // affecter aux grands champs une valeur null
-                _fence = null;
-                CommandQueue = null;
-                _device = null;
-                disposedValue = true;
+                return;
             }
-        }
 
+            if (disposing)
+            {
+                Flush();
+            }
+
+            // libérer les ressources non managées (objets non managés) et substituer le finaliseur
+            _commandListQueue.Clear();
+            _commandAllocatorQueue.Clear();
+            _disposableManager.ReverseDispose = true;
+            _disposableManager.Dispose();
+            // affecter aux grands champs une valeur null
+            _fence = null;
+            CommandQueue = null;
+            _device = null;
+            _disposedValue = true;
+        }
     }
 }
