@@ -3,7 +3,6 @@ using Small.Net.Graphic.D12.Core;
 using Small.Net.Utilities;
 using System;
 using System.Drawing;
-using System.Linq;
 using Vortice.Direct3D;
 using Vortice.Direct3D12;
 using Vortice.Direct3D12.Debug;
@@ -19,6 +18,7 @@ namespace Small.Net.Graphic.D12
         private readonly IDisposableManager _disposableManager = new CommonDisposableManager();
         private readonly ID3D12Resource[] _backBuffers = new ID3D12Resource[SwapBufferCount];
         private readonly bool _verticalSync;
+        private readonly ulong[] _fenceValues = new ulong[SwapBufferCount];
 
         private bool _disposedValue;
         private bool _dxDebug;
@@ -27,10 +27,17 @@ namespace Small.Net.Graphic.D12
         private ID3D12Device5 _device;
         private IDXGISwapChain4 _swapChain;
         private ID3D12DescriptorHeap _descriptorHeap;
+        
+        // Depth Buffers
+        private ID3D12Resource _depthBuffer;
+        private ID3D12DescriptorHeap _dsvHeap;
 
+        // Current info
         private int _currentBackBufferIndex;
         private int _currentWidth;
         private int _currentHeight;
+        
+        // Shaders
 
         public Dx12Engine(bool verticalSync = true)
         {
@@ -39,7 +46,6 @@ namespace Small.Net.Graphic.D12
 
         ~Dx12Engine()
         {
-            // Ne changez pas ce code. Placez le code de nettoyage dans la méthode 'Dispose(bool disposing)'
             Dispose(disposing: false);
         }
 
@@ -49,7 +55,7 @@ namespace Small.Net.Graphic.D12
 
         public bool IsInitialised { get; private set; }
 
-        public virtual bool Initialise(IWindowHandle window)
+        public bool Initialise(IWindowHandle window)
         {
             if (window == null)
             {
@@ -96,7 +102,7 @@ namespace Small.Net.Graphic.D12
             return true;
         }
 
-        public virtual void Resize(int newWidth, int newHeight)
+        public void Resize(int newWidth, int newHeight)
         {
             if (_currentHeight == newHeight && _currentWidth == newWidth)
             {
@@ -105,35 +111,27 @@ namespace Small.Net.Graphic.D12
 
             _currentHeight = newHeight;
             _currentWidth = newWidth;
-            CommandQueueManager.Flush();
-            foreach (var buffer in _backBuffers)
-            {
-                buffer.Release();
-            }
-
-            var description = _swapChain.Description;
-            _swapChain.ResizeBuffers(SwapBufferCount, newWidth, newHeight, ViewFormat, description.Flags);
-            _currentBackBufferIndex = _swapChain.GetCurrentBackBufferIndex();
-
-            UpdateRenderTargetViews();
+            ResizeRenderViews(newWidth, newHeight);
         }
 
-        public virtual void Render()
+        public void Render()
         {
             var backBuffer = CurrentBuffer;
             var commandList = CommandQueueManager.GetCommandList();
             ResourceBarrier(commandList.CommandList, backBuffer, ResourceStates.Present, ResourceStates.RenderTarget);
-            var cpuHandler = _descriptorHeap.GetCPUDescriptorHandleForHeapStart();
-            commandList.CommandList.ClearRenderTargetView(cpuHandler, Color.DarkCyan);
+            // Clear render view
+            var rtv = _descriptorHeap.GetCPUDescriptorHandleForHeapStart();
+            commandList.CommandList.ClearRenderTargetView(rtv, Color.DarkCyan);
+            // Clear Depth Buffer
+           // var dsv = 
 
             // We finish rendering
             ResourceBarrier(commandList.CommandList, backBuffer, ResourceStates.RenderTarget, ResourceStates.Present);
-            var fenceValue = CommandQueueManager.ExecuteCommandList(commandList);
-            var result = _swapChain.Present(_verticalSync ? 1 : 0,
-                _tearingSupported && !_verticalSync ? PresentFlags.AllowTearing : PresentFlags.None);
-            result.CheckError();
-            CommandQueueManager.WaitForFenceValue(fenceValue);
+            _fenceValues[_currentBackBufferIndex] = CommandQueueManager.ExecuteCommandList(commandList);
+            Present();
+            CommandQueueManager.WaitForFenceValue(_fenceValues[_currentBackBufferIndex]);
         }
+
 
         public void Dispose()
         {
@@ -160,24 +158,32 @@ namespace Small.Net.Graphic.D12
             _disposedValue = true;
         }
 
+        // Show image to screen.
+        private void Present()
+        {
+            var result = _swapChain.Present(_verticalSync ? 1 : 0,
+                _tearingSupported && !_verticalSync ? PresentFlags.AllowTearing : PresentFlags.None);
+            result.CheckError();
+            _currentBackBufferIndex = _swapChain.GetCurrentBackBufferIndex();
+        }
 
         private ID3D12Device5 CreateDevice()
         {
             // Generally the adapters with more memory is the best one
-            var adapters = _factory.Adapters1.OrderByDescending(a => (long) a.Description1.DedicatedVideoMemory)
-                .ToList();
             // ReSharper disable once ForCanBeConvertedToForeach
-            for (var i = 0; i < adapters.Count; i++)
+            for (var i = 0; _factory.EnumAdapters1(i, out var adapter1).Success; i++)
             {
-                var desc = adapters[i].Description1;
+                var desc = adapter1.Description1;
                 if ((desc.Flags & AdapterFlags.Software) == AdapterFlags.Software)
                 {
+                    adapter1.Dispose();
                     continue;
                 }
 
-                var res = D3D12.D3D12CreateDevice(adapters[i], FeatureLevel.Level_12_1, out var device);
+                var res = D3D12.D3D12CreateDevice<ID3D12Device5>(adapter1, FeatureLevel.Level_12_1, out var device);
                 if (res.Failure)
                 {
+                    adapter1.Dispose();
                     continue;
                 }
 
@@ -234,6 +240,21 @@ namespace Small.Net.Graphic.D12
             return descriptorHeap;
         }
 
+        private void ResizeRenderViews(int newWidth, int newHeight)
+        {
+            CommandQueueManager.Flush();
+            foreach (var buffer in _backBuffers)
+            {
+                buffer.Release();
+            }
+
+            var description = _swapChain.Description;
+            _swapChain.ResizeBuffers(SwapBufferCount, newWidth, newHeight, ViewFormat, description.Flags);
+            _currentBackBufferIndex = _swapChain.GetCurrentBackBufferIndex();
+
+            UpdateRenderTargetViews();
+        }
+        
         private void UpdateRenderTargetViews()
         {
             var cpuHandle = _descriptorHeap.GetCPUDescriptorHandleForHeapStart();

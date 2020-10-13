@@ -2,7 +2,6 @@ using System;
 using Windows.UI.Xaml.Controls;
 using SharpGen.Runtime;
 using Small.Net.Graphic.Core;
-using Small.Net.Graphic.Interop;
 using Vortice.DXGI;
 
 namespace WorldEditor.Entities
@@ -24,7 +23,7 @@ namespace WorldEditor.Entities
         public void AssignTo(IDXGISwapChain4 swapChain)
         {
             using var nativeObject = ComObject.As<ISwapChainPanelNative>(_panel);
-            nativeObject.SwapChain = swapChain;
+            nativeObject.SetSwapChain(swapChain);
         }
     }
 }

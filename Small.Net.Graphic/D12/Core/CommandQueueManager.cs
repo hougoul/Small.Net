@@ -15,7 +15,7 @@ namespace Small.Net.Graphic.D12.Core
         private ID3D12Device5 _device;
         private ID3D12Fence _fence;
         private readonly EventWaitHandle _fenceEvent;
-        private long _fenceValue;
+        private ulong _fenceValue;
 
 
         private bool _disposedValue;
@@ -77,10 +77,10 @@ namespace Small.Net.Graphic.D12.Core
             };
         }
 
-        public long ExecuteCommandList(DX12CommandList<ID3D12GraphicsCommandList2> commandList)
+        public ulong ExecuteCommandList(DX12CommandList<ID3D12GraphicsCommandList2> commandList)
         {
             commandList.CommandList.Close();
-            CommandQueue.ExecuteCommandLists(commandList.CommandList);
+            CommandQueue.ExecuteCommandLists(new[] { commandList.CommandList });
             var fenceSignal = Signal();
             _commandAllocatorQueue.Enqueue(new CommandAllocatorEntry()
             {
@@ -91,19 +91,19 @@ namespace Small.Net.Graphic.D12.Core
             return fenceSignal;
         }
 
-        public long Signal()
+        public ulong Signal()
         {
             var fenceValue = ++_fenceValue;
             CommandQueue.Signal(_fence, fenceValue);
             return fenceValue;
         }
 
-        public bool IsFenceComplete(long fenceValue)
+        public bool IsFenceComplete(ulong fenceValue)
         {
             return _fence.CompletedValue >= fenceValue;
         }
 
-        public void WaitForFenceValue(long fenceValue)
+        public void WaitForFenceValue(ulong fenceValue)
         {
             if (IsFenceComplete(fenceValue))
             {

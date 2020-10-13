@@ -4,7 +4,7 @@ namespace Small.Net.Graphic.D12.Core
 {
     internal struct CommandAllocatorEntry
     {
-        public long FenceValue;
+        public ulong FenceValue;
         public ID3D12CommandAllocator CommandAllocator;
     }
 }
